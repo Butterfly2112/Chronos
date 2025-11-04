@@ -1,0 +1,68 @@
+що значать записи у бд:
+
+юзери:
+username        // Ім’я користувача
+email           // Унікальний email
+password        // Хешований пароль
+calendars       // Список ObjectId календарів
+sharedWithMe    // Календарі, до яких користувача запросили
+createdAt       // Дата створення акаунта
+
+календар:
+name            // Назва календаря
+description     // Опис календаря
+color           // Колір подій у цьому календарі
+owner           // Власник
+members         // Користувачі, яким надано доступ
+events          // Список подій
+isDefault       // true для головного календаря
+createdAt       // Дата створення
+
+події:
+title           // Назва події
+description     // Опис
+type            // "arrangement" | "reminder" | "task"
+startDate       // Початок події
+endDate         // Кінець події
+calendar        // До якого календаря належить
+creator         // Хто створив подію
+invited         // Кого запросили (список користувачів)
+status          // Для task: "pending", "done", "cancelled"
+repeat          // Для recurring подій: "none", "daily", "weekly", "monthly"
+color           // Колір події
+createdAt       // Дата створення
+
+
+npm install mongoose
+
+структура проєкту(предположительна):
+chronos/
+├── backend/                  # Серверна частина (Node.js + Express + Mongoose)
+│   ├── config/               # Конфігурації (підключення до БД, JWT тощо)
+│   │   └── db.js
+│   ├── models/               # Mongoose-моделі: User, Calendar, Event, Notification
+│   ├── routes/               # REST API маршрути
+│   ├── controllers/          # Логіка обробки запитів
+│   ├── middleware/           # Перевірка токенів, помилки, логування
+│   ├── utils/                # Допоміжні функції (email-нагадування, форматування дат)
+│   ├── server.js             # Точка входу Express-сервера
+│   ├── Dockerfile            # Образ для backend-контейнера
+│   └── .env
+│
+├── frontend/                 # Клієнтська частина (React)
+│   ├── src/
+│   │   ├── components/       # UI-компоненти (CalendarView, EventForm, Sidebar)
+│   │   ├── pages/            # Головна, Login, Register, Dashboard
+│   │   ├── services/         # API-виклики до backend
+│   │   ├── hooks/            # Кастомні React-хуки
+│   │   ├── store/            # Redux або Context для стану додатку
+│   │   ├── styles/           # CSS/SCSS-файли
+│   │   └── App.js
+│   ├── public/
+│   ├── package.json
+│   ├── Dockerfile            # Образ для frontend-контейнера
+│   └── .env
+│
+├── docker-compose.yml        # Єдиний файл для запуску всіх сервісів
+├── README.md                 # Документація проєкту
+└── .gitignore
