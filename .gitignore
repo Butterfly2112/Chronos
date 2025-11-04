@@ -1,0 +1,15 @@
+.env
+
+node_modules/
+
+uploads/
+
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+
+package-lock.json
