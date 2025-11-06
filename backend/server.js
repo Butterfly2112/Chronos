@@ -1,18 +1,20 @@
+import dotenv from "dotenv";
+dotenv.config();
+
+import express from "express";
 import { connectDB } from "./config/db.js";
 import mainRouter from "./routes/mainRouter.js";
-import express from "express";
-import dotenv from "dotenv";
+import sessionConfig from "./config/session.js";
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || "localhost";
 
-dotenv.config();
+connectDB();
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-connectDB();
+app.use(sessionConfig());
 
 app.use("/api", mainRouter);
 
