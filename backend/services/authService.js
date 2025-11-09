@@ -1,5 +1,6 @@
-import User from "../models/User";
+import User from "../models/User.js";
 import crypto from "crypto";
+import AppError from "../utils/AppError.js";
 
 class AuthService {
   async register(userData) {
@@ -10,8 +11,9 @@ class AuthService {
     });
 
     if (userExists) {
-      if (userExists.login === login) throw new Error("Login already in use.");
-      throw new Error("Email already in use");
+      if (userExists.login === login)
+        throw new AppError("Login already in use", 409);
+      throw new AppError("Email already in use", 409);
     }
 
     const emailConfirmationToken = crypto.randomBytes(32).toString("hex");
@@ -24,7 +26,10 @@ class AuthService {
       emailConfirmationToken,
     });
 
-    return this.#getSafeUser(user);
+    return {
+      user: this.#getSafeUser(user),
+      token: emailConfirmationToken,
+    };
   }
 
   async login(identifier, password) {
@@ -33,15 +38,15 @@ class AuthService {
     });
 
     if (!user) {
-      throw new Error("User with such login or email not found");
+      throw new AppError("User with such login or email not found", 401);
     }
 
     const isValidPassword = await user.comparePassword(password);
     if (!isValidPassword) {
-      throw new Error("Invalid email, login or password");
+      throw new AppError("Invalid email, login or password", 401);
     }
     if (!user.emailConfirmed) {
-      throw new Error("Please confirm your email first");
+      throw new AppError("Please confirm your email first", 403);
     }
 
     return this.#getSafeUser(user);
@@ -51,7 +56,7 @@ class AuthService {
     const user = await User.findOne({ emailConfirmationToken: token });
 
     if (!user) {
-      throw new Error("Invalid token or this email already confirmed");
+      throw new AppError("Invalid token or this email already confirmed", 400);
     }
 
     user.emailConfirmed = true;
@@ -61,9 +66,9 @@ class AuthService {
     return { message: "Email confirmed successfully" };
   }
 
-  async getEmailToken(email) {
-    const user = await User.findOne({ email: email });
-    return user.emailConfirmationToken;
+  async getByEmail(email) {
+    const user = await User.findByEmail(email);
+    return user;
   }
 
   #getSafeUser(user) {

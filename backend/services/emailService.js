@@ -2,7 +2,8 @@ import nodemailer from "nodemailer";
 
 class EmailService {
   constructor() {
-    this.transponter = nodemailer.createTransport({
+    console.log(process.env.EMAIL_USER, process.env.EMAIL_PASS);
+    this.transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
         user: process.env.EMAIL_USER,
@@ -12,7 +13,7 @@ class EmailService {
   }
   async sendEmailConfirmationToken(email, token) {
     const url = `http://${process.env.HOST_FOR_EMAIL}:${process.env.PORT_FOR_EMAIL}/confirm-email?token=${token}`;
-    const info = await this.transponter.sendMail({
+    const info = await this.transporter.sendMail({
       from: `"Chronus" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Registration confirmation",
