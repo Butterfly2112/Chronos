@@ -7,12 +7,14 @@ export default function Login(){
   const [email,setEmail] = useState('')
   const [password,setPassword] = useState('')
   const [error,setError] = useState(null)
+  const [loading,setLoading] = useState(false)
   const navigate = useNavigate()
   const { setUser } = useContext(AuthContext)
 
   async function submit(e){
     e.preventDefault()
     setError(null)
+    setLoading(true)
     try{
       const res = await api.post('/auth/login', { identifier: email, password })
       if(res.data?.user){
@@ -21,7 +23,20 @@ export default function Login(){
       if(res.data?.token) localStorage.setItem('chronos_token', res.data.token)
       navigate('/dashboard')
     }catch(err){
-      setError(err.response?.data?.error || err.response?.data?.message || err.message)
+      // Покращене повідомлення про помилку: беремо message з відповіді бекенду або приводимо error до рядка
+      const apiData = err?.response?.data
+      let msg = apiData?.message || apiData?.error || err?.message || 'Login failed'
+      if (msg && typeof msg === 'object') {
+        try{
+          msg = msg.message || JSON.stringify(msg)
+        }catch(e){
+          msg = 'Login failed'
+        }
+      }
+      setError(msg)
+    }
+    finally{
+      setLoading(false)
     }
   }
 
@@ -30,15 +45,15 @@ export default function Login(){
       <h2>Login</h2>
       <form onSubmit={submit}>
         <div style={{marginBottom:12}}>
-          <label>Email</label>
+          <label>Login or email</label>
           <input value={email} onChange={e=>setEmail(e.target.value)} required style={{width:'100%'}} />
         </div>
         <div style={{marginBottom:12}}>
           <label>Password</label>
           <input value={password} onChange={e=>setPassword(e.target.value)} type="password" required style={{width:'100%'}} />
         </div>
-        {error && <div style={{color:'red',marginBottom:8}}>{error}</div>}
-        <button type="submit">Sign in</button>
+  {error && <div role="alert" style={{color:'white', background:'#ef4444', padding:8, borderRadius:4, marginBottom:8}}>{error}</div>}
+  <button type="submit" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</button>
       </form>
     </div>
   )
