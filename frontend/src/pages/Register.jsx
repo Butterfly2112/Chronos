@@ -16,7 +16,7 @@ export default function Register(){
     e.preventDefault()
     setError(null)
     if(password !== confirmPassword){
-      setError('Password and confirm password do not match')
+      setError('Паролі не співпадають')
       return
     }
 

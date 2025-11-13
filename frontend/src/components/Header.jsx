@@ -10,7 +10,6 @@ export default function Header(){
       <div className="container" style={{display:'flex', alignItems:'center', gap:16}}>
         <h1 style={{margin:0,fontSize:20}}>Chronos</h1>
         <nav style={{marginLeft:'auto',display:'flex',gap:12, alignItems:'center'}}>
-          <Link to="/">Home</Link>
           <Link to="/dashboard">Calendar</Link>
           {!user && (
             <>
