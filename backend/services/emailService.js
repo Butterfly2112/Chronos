@@ -12,14 +12,21 @@ class EmailService {
     });
   }
   async sendEmailConfirmationToken(email, token) {
-    const url = `http://${process.env.HOST_FOR_EMAIL}:${process.env.PORT_FOR_EMAIL}/confirm-email?token=${token}`;
+    /*
+      Лінк для підтвердження емейлу формуються так, щоб потрапляти
+      на існуючий бекенд-рут `/api/auth/confirm-email`. Раніше посилання вели на
+      `/confirm-email` і викликали 404.
+    */
+    const host = process.env.HOST_FOR_EMAIL || process.env.HOST || 'localhost';
+    const port = process.env.PORT_FOR_EMAIL || process.env.PORT || '3000';
+    const url = `http://${host}:${port}/api/auth/confirm-email?token=${token}`;
     const info = await this.transporter.sendMail({
-      from: `"Chronus" <${process.env.EMAIL_USER}>`,
+      from: `"Chronos" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Registration confirmation",
       text: `To confirm your registration, follow the link: ${url}`,
       html: `
-        <h1>Welcome to the Chronus</h1>
+        <h1>Welcome to the Chronos</h1>
         <p>Please, confirm your email by clicking on the link below</p>
         <a href="${url}">${url}</a>
       `,

@@ -9,6 +9,6 @@
   "private": true,
   "dependencies": {
     "mongodb": "4.1",
-    "mongoose": "^8.19.2"
+    "mongoose": "^8.19.3"
   }
 }
