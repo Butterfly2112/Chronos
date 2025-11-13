@@ -1,25 +1,26 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
+import { AuthContext } from '../contexts/AuthContext'
 
 export default function Login(){
   const [email,setEmail] = useState('')
   const [password,setPassword] = useState('')
   const [error,setError] = useState(null)
   const navigate = useNavigate()
+  const { setUser } = useContext(AuthContext)
 
   async function submit(e){
     e.preventDefault()
     setError(null)
     try{
-      // backend expects { identifier, password } where identifier can be login or email
       const res = await api.post('/auth/login', { identifier: email, password })
-      // backend currently uses server session and may not return a token here
+      if(res.data?.user){
+        setUser(res.data.user)
+      }
       if(res.data?.token) localStorage.setItem('chronos_token', res.data.token)
-      // Перехід на головний екран після успішного входу
       navigate('/dashboard')
     }catch(err){
-      // backend middleware returns { error: '...' } for validation errors
       setError(err.response?.data?.error || err.response?.data?.message || err.message)
     }
   }
