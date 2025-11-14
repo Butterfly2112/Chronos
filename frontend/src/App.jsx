@@ -11,7 +11,7 @@ export default function App() {
     <AuthProvider>
       <div>
         <Header />
-        <main style={{ padding: 20 }}>
+        <main>
           <Routes>
             {/* Головна сторінка -> дашборд */}
             <Route path="/" element={<Dashboard />} />
