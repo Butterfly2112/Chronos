@@ -49,17 +49,18 @@
 
 .form-input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 7px 8px;
+  margin: 5px 0;
   border-radius: 8px;
   border: 1px solid rgba(255,255,255,0.04);
   outline: none;
-  background: rgba(255,255,255,0.01);
+  background: #5d4b41;
   color: var(--text);
 }
 
 .form-input:focus {
   box-shadow: 0 8px 30px rgba(124,58,237,0.08);
-  border-color: var(--accent-2);
+  border-color: var(--card);
 }
 
 .btn-ghost,
@@ -120,4 +121,21 @@ button.nav-link:hover,
 .nav-link:hover {
   color: var(--text) !important;
   background: rgba(0,230,255,0.04) !important;
+}
+
+.app-error {
+  color: #fff;
+  background: rgba(239,68,68,0.85);
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-family: initial;
+  font-size: 14px;
+}
+
+.form-error {
+  color: rgba(239,68,68,0.95);
+  font-size: 13px;
+  margin-top: 6px;
+  font-family: initial;
 }

@@ -9,7 +9,6 @@ export default function ConfirmEmail(){
   const calledRef = useRef(false)
 
   useEffect(()=>{
-    // prevent duplicate confirm calls in React Strict Mode (dev)
     if (calledRef.current) return
     const params = new URLSearchParams(search)
     const statusParam = params.get('status')
@@ -69,7 +68,7 @@ export default function ConfirmEmail(){
                 <h2 style={{color:'#16a34a', marginTop:8}}>Your account has been confirmed</h2>
                 <p style={{marginTop:8, fontFamily:'initial'}}>{status.message || 'Thank you — your account is now active.'}</p>
                 <div style={{display:'flex', gap:12, justifyContent:'center', marginTop:18}}>
-                  <button onClick={()=>navigate('/login')} style={{padding:'10px 14px', background:'#3b82f6', color:'#fff', border:'none', borderRadius:6}}>Go to Login</button>
+                  <button onClick={()=>navigate('/login')} style={{padding:'10px 14px', background:'#d2965c', color:'#fff', border:'none', borderRadius:6}}>Go to Login</button>
                   <button onClick={()=>navigate('/')} style={{padding:'10px 14px', background:'transparent', color:'#374151', border:'1px solid #e5e7eb', borderRadius:6}}>Home</button>
                 </div>
               </div>
@@ -77,7 +76,7 @@ export default function ConfirmEmail(){
               <div>
                 <div style={{fontSize:56, color:'rgba(239,68,68,0.9)', lineHeight:1}}>✖︎</div>
                 <h2 style={{color:'rgba(239,68,68,0.9)', marginTop:8}}>Confirmation failed</h2>
-                <p style={{marginTop:8, fontFamily:'initial'}}>{status.message || 'Failed to confirm your account.'}</p>
+                {status.message && <div role="alert" className="app-error">{status.message}</div>}
                 <div style={{display:'flex', gap:12, justifyContent:'center', marginTop:18}}>
                   <button onClick={()=>navigate('/register')} style={{padding:'10px 14px', background:'#ef4444', color:'#fff', border:'none', borderRadius:6}}>Try again</button>
                   <button onClick={()=>navigate('/')} style={{padding:'10px 14px', background:'transparent', color:'#374151', border:'1px solid #e5e7eb', borderRadius:6}}>Home</button>
