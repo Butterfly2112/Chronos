@@ -55,7 +55,7 @@ export default function Login(){
             <label>Password</label>
             <input value={password} onChange={e=>setPassword(e.target.value)} type="password" required style={{width:'100%'}} />
           </div>
-          {error && <div role="alert" style={{color:'white', background:'#ef4444', padding:8, borderRadius:4, marginBottom:8}}>{error}</div>}
+          {error && <div role="alert" style={{color:'white', background:'rgba(239, 68, 68, 0.62)', padding:8, borderRadius:4, marginBottom:8, fontFamily:'initial'}}>{error}</div>}
           <button type="submit" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</button>
         </form>
       </div>

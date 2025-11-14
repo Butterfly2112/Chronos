@@ -87,7 +87,7 @@ export default function Register(){
               <input value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} type="password" required style={{width:'100%'}} />
             </div>
           </div>
-          {error && <div style={{color:'red',marginBottom:8}}>{error}</div>}
+          {error && <div style={{color:'rgba(239, 68, 68, 0.62)',marginBottom:8, fontFamily:'initial'}}>{error}</div>}
           <button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Create account'}</button>
         </form>
       </div>
