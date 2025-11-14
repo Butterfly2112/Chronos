@@ -1,0 +1,123 @@
+.card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)), var(--card);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 30px rgba(124,58,237,0.06), var(--shadow-soft);
+  padding: 18px;
+  border: 1px solid rgba(255,255,255,0.02);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color: #0a0a0a;
+  box-shadow: 0 8px 30px rgba(255,45,149,0.12), 0 4px 12px rgba(0,230,255,0.06) inset;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.12);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--accent-2);
+  border: 1px solid rgba(0,230,255,0.08);
+  box-shadow: 0 4px 12px rgba(124,58,237,0.04);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-row {
+  margin-bottom: 12px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.04);
+  outline: none;
+  background: rgba(255,255,255,0.01);
+  color: var(--text);
+}
+
+.form-input:focus {
+  box-shadow: 0 8px 30px rgba(124,58,237,0.08);
+  border-color: var(--accent-2);
+}
+
+.btn-ghost,
+.btn-primary {
+  transition: box-shadow .18s, transform .12s;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+button,
+input[type="button"],
+input[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  background: var(--muted);
+  color: #0a0a0a;
+  box-shadow: 0 8px 30px rgba(255,45,149,0.12), 0 4px 12px rgba(0,230,255,0.06) inset;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.12);
+  transition: box-shadow .18s, transform .12s;
+}
+
+button.btn-ghost,
+.btn-ghost {
+  background: transparent;
+  color: var(--accent-2);
+  border: 1px solid rgba(0,230,255,0.08);
+  box-shadow: 0 4px 12px rgba(124,58,237,0.04);
+}
+
+button:disabled,
+input[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Ensure nav-link looks like a simple text link even when applied to <button> */
+button.nav-link,
+.nav-link {
+  background: transparent !important;
+  border: none !important;
+  padding: 6px 8px !important;
+  color: var(--muted) !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  text-decoration: none !important;
+}
+
+button.nav-link:hover,
+.nav-link:hover {
+  color: var(--text) !important;
+  background: rgba(0,230,255,0.04) !important;
+}

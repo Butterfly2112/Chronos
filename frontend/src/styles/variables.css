@@ -1,0 +1,15 @@
+:root {
+  --bg: #2b211b;
+  --card: #3a2f28;
+  --accent: #d2965c;
+  --accent-2: #8e6b4f;
+  --accent-3: #c7585b;
+  --text: #f0e6d6;
+  --muted: #b9a38d;
+  --radius: 10px;
+  --shadow-soft: 0 8px 30px rgba(20,10,0,0.5);
+}
+
+* {
+  box-sizing: border-box;
+}
