@@ -69,7 +69,7 @@ export default function ConfirmEmail(){
                 <p style={{marginTop:8, fontFamily:'initial'}}>{status.message || 'Thank you — your account is now active.'}</p>
                 <div style={{display:'flex', gap:12, justifyContent:'center', marginTop:18}}>
                   <button onClick={()=>navigate('/login')} style={{padding:'10px 14px', background:'#d2965c', color:'#fff', border:'none', borderRadius:6}}>Go to Login</button>
-                  <button onClick={()=>navigate('/')} style={{padding:'10px 14px', background:'transparent', color:'#374151', border:'1px solid #e5e7eb', borderRadius:6}}>Home</button>
+                  <button onClick={()=>navigate('/')} style={{padding:'10px 14px', background:'transparent', color:'#fff', border:'1px solid #e5e7eb', borderRadius:6}}>Home</button>
                 </div>
               </div>
             ) : (
@@ -79,7 +79,7 @@ export default function ConfirmEmail(){
                 {status.message && <div role="alert" className="app-error">{status.message}</div>}
                 <div style={{display:'flex', gap:12, justifyContent:'center', marginTop:18}}>
                   <button onClick={()=>navigate('/register')} style={{padding:'10px 14px', background:'#ef4444', color:'#fff', border:'none', borderRadius:6}}>Try again</button>
-                  <button onClick={()=>navigate('/')} style={{padding:'10px 14px', background:'transparent', color:'#374151', border:'1px solid #e5e7eb', borderRadius:6}}>Home</button>
+                  <button onClick={()=>navigate('/')} style={{padding:'10px 14px', background:'transparent', color:'#fff', border:'1px solid #e5e7eb', borderRadius:6}}>Home</button>
                 </div>
               </div>
             )}

@@ -25,6 +25,17 @@
 }
 
 .btn-ghost {
+  overflow: hidden; /* Ensure the image is cropped */
+}
+
+/* avatar image behaviour */
+.avatar img,
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
   background: transparent;
   color: var(--accent-2);
   border: 1px solid rgba(0,230,255,0.08);
@@ -138,4 +149,51 @@ button.nav-link:hover,
   font-size: 13px;
   margin-top: 6px;
   font-family: initial;
+}
+
+/* Compact user chip shown in header when logged in */
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.02);
+}
+
+.user-chip .avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+}
+
+.user-chip .username {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  max-width: 180px;
+  text-overflow: ellipsis;
+}
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.02);
+}
+.user-chip .avatar {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  font-size: 16px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  overflow: hidden; /* Ensure the image is cropped */
 }

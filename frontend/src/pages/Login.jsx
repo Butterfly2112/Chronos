@@ -8,8 +8,15 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import mapServerError from '../utils/errorMapper'
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const usernameRegex = /^[a-zA-Z0-9._-]{3,}$/
+
 const schema = yup.object({
-  identifier: yup.string().email('Invalid email address').required('Email is required'),
+  identifier: yup.string().required('Email or username is required')
+    .test('email-or-username', 'Enter a valid email or username', value => {
+      if (!value) return false
+      return emailRegex.test(value) || usernameRegex.test(value)
+    }),
   password: yup.string().required('Password is required')
 }).required()
 
@@ -47,8 +54,8 @@ export default function Login(){
         <h2>Login</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div style={{marginBottom:12}}>
-            <label>Email</label>
-            <input {...register('identifier')} type="email" className="form-input" />
+            <label>Email or username</label>
+            <input {...register('identifier')} type="text" className="form-input" />
             {errors.identifier && <div className="form-error">{errors.identifier.message}</div>}
           </div>
           <div style={{marginBottom:12}}>
