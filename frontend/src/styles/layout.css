@@ -1,4 +1,5 @@
 .full-screen {
+  padding: 0%;
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
@@ -8,7 +9,7 @@
   display: block;
   padding-top: 5%;
   padding-bottom: 16px;
-  min-height: 90vh;
+  min-height: calc(100vh - var(--header-height, 64px));
 }
 
 .full-screen .form-row {
@@ -24,10 +25,7 @@
 }
 
 .full-screen.center {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 100vh;
+    padding-top: 10%;
 }
 
 .full-screen.stretch {

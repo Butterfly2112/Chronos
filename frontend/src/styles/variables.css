@@ -8,6 +8,7 @@
   --muted: #b9a38d;
   --radius: 10px;
   --shadow-soft: 0 8px 30px rgba(20,10,0,0.5);
+  --header-height: 64px;
 }
 
 * {
