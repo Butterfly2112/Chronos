@@ -2,59 +2,68 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import usePlaywriteFont from '../hooks/usePlaywriteFont'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+import mapServerError from '../utils/errorMapper'
+
+const schema = yup.object({
+  login: yup.string().required('Login is required'),
+  username: yup.string().required('Display name is required'),
+  email: yup.string().email('Invalid email address').required('Email is required'),
+  password: yup.string()
+    .required('Password is required')
+    .test('password-strength', 'Password must be at least 8 characters and include letters and numbers', value => {
+      if (!value) return false
+      return value.length >= 8 && /(?=.*[0-9])(?=.*[A-Za-z])/.test(value)
+    }),
+  confirm_password: yup.string()
+    .oneOf([yup.ref('password')], 'Passwords must match')
+    .required('Please confirm your password')
+}).required()
 
 export default function Register(){
-  const [login, setLogin] = useState('')
-  const [username,setUsername] = useState('')
-  const [email,setEmail] = useState('')
-  const [password,setPassword] = useState('')
-  const [confirmPassword,setConfirmPassword] = useState('')
-  const [error,setError] = useState(null)
+  const [serverError,setServerError] = useState(null)
   const [loading,setLoading] = useState(false)
   const navigate = useNavigate()
   usePlaywriteFont()
 
-  async function submit(e){
-    e.preventDefault()
-    setError(null)
-    if(password !== confirmPassword){
-      setError('Паролі не співпадають')
-      return
-    }
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: yupResolver(schema)
+  })
 
+  async function onSubmit(data){
+    setServerError(null)
     setLoading(true)
     try{
       const payload = {
-        login,
-        username,
-        email,
-        password,
-        confirm_password: confirmPassword,
+        login: data.login,
+        username: data.username,
+        email: data.email,
+        password: data.password,
+        confirm_password: data.confirm_password
       }
 
       const res = await api.post('/auth/register', payload)
 
-      // Якщо бекенд повертає токен — зберігаємо і переходимо на дашборд
       if(res.data?.token){
         localStorage.setItem('chronos_token', res.data.token)
         navigate('/dashboard')
         return
       }
 
-      // Якщо токен не повернуто — пробуємо авторизуватися відразу
+      // try auto-login if token not returned
       try{
-        const loginRes = await api.post('/auth/login', { email, password })
+        const loginRes = await api.post('/auth/login', { email: data.email, password: data.password })
         if(loginRes.data?.token){
           localStorage.setItem('chronos_token', loginRes.data.token)
         }
         navigate('/dashboard')
       }catch(loginErr){
-        // Якщо авто-логін не вдався — переводимо на сторінку входу
         navigate('/login')
       }
     }catch(err){
-      // Показуємо повідомлення про помилку з відповіді бекенду або загальну помилку
-      setError(err.response?.data?.message || err.response?.data?.error || err.message)
+      setServerError(mapServerError(err))
     }finally{
       setLoading(false)
     }
@@ -64,30 +73,35 @@ export default function Register(){
     <div className="full-screen bg-auth playwrite">
       <div style={{maxWidth:520, margin:'0 auto', background:'var(--card)', padding:20}}>
         <h2>Create account</h2>
-        <form onSubmit={submit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div style={{marginBottom:12}}>
             <label>Login</label>
-            <input value={login} onChange={e=>setLogin(e.target.value)} required style={{width:'100%'}} />
+            <input {...register('login')} className="form-input" />
+            {errors.login && <div className="form-error">{errors.login.message}</div>}
           </div>
           <div style={{marginBottom:12}}>
             <label>Display name</label>
-            <input value={username} onChange={e=>setUsername(e.target.value)} required style={{width:'100%'}} />
+            <input {...register('username')} className="form-input" />
+            {errors.username && <div className="form-error">{errors.username.message}</div>}
           </div>
           <div style={{marginBottom:12}}>
             <label>Email</label>
-            <input value={email} onChange={e=>setEmail(e.target.value)} required style={{width:'100%'}} />
+            <input {...register('email')} type="email" className="form-input" />
+            {errors.email && <div className="form-error">{errors.email.message}</div>}
           </div>
           <div style={{display:'flex', gap:12, marginBottom:12}}>
             <div style={{flex:1}}>
               <label>Password</label>
-              <input value={password} onChange={e=>setPassword(e.target.value)} type="password" required style={{width:'100%'}} />
+              <input {...register('password')} type="password" className="form-input" />
+              {errors.password && <div className="form-error">{errors.password.message}</div>}
             </div>
             <div style={{flex:1}}>
               <label>Confirm password</label>
-              <input value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} type="password" required style={{width:'100%'}} />
+              <input {...register('confirm_password')} type="password" className="form-input" />
+              {errors.confirm_password && <div className="form-error">{errors.confirm_password.message}</div>}
             </div>
           </div>
-          {error && <div style={{color:'red',marginBottom:8}}>{error}</div>}
+          {serverError && <div role="alert" className="app-error">{serverError}</div>}
           <button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Create account'}</button>
         </form>
       </div>

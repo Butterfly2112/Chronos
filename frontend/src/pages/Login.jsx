@@ -1,43 +1,49 @@
-import React, { useState, useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { AuthContext } from '../contexts/AuthContext'
 import usePlaywriteFont from '../hooks/usePlaywriteFont'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+import mapServerError from '../utils/errorMapper'
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const usernameRegex = /^[a-zA-Z0-9._-]{3,}$/
+
+const schema = yup.object({
+  identifier: yup.string().required('Email or username is required')
+    .test('email-or-username', 'Enter a valid email or username', value => {
+      if (!value) return false
+      return emailRegex.test(value) || usernameRegex.test(value)
+    }),
+  password: yup.string().required('Password is required')
+}).required()
 
 export default function Login(){
-  const [email,setEmail] = useState('')
-  const [password,setPassword] = useState('')
-  const [error,setError] = useState(null)
+  const { setUser } = useContext(AuthContext)
+  const [serverError,setServerError] = useState(null)
   const [loading,setLoading] = useState(false)
   const navigate = useNavigate()
-  const { setUser } = useContext(AuthContext)
   usePlaywriteFont()
 
-  async function submit(e){
-    e.preventDefault()
-    setError(null)
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: yupResolver(schema)
+  })
+
+  async function onSubmit(data){
+    setServerError(null)
     setLoading(true)
     try{
-      const res = await api.post('/auth/login', { identifier: email, password })
+      const res = await api.post('/auth/login', { identifier: data.identifier, password: data.password })
       if(res.data?.user){
         setUser(res.data.user)
       }
       if(res.data?.token) localStorage.setItem('chronos_token', res.data.token)
       navigate('/dashboard')
     }catch(err){
-      // Покращене повідомлення про помилку: беремо message з відповіді бекенду або приводимо error до рядка
-      const apiData = err?.response?.data
-      let msg = apiData?.message || apiData?.error || err?.message || 'Login failed'
-      if (msg && typeof msg === 'object') {
-        try{
-          msg = msg.message || JSON.stringify(msg)
-        }catch(e){
-          msg = 'Login failed'
-        }
-      }
-      setError(msg)
-    }
-    finally{
+      setServerError(mapServerError(err))
+    }finally{
       setLoading(false)
     }
   }
@@ -46,16 +52,18 @@ export default function Login(){
     <div className="full-screen bg-auth playwrite">
       <div style={{maxWidth:420, margin:'0 auto', background:'var(--card)', padding:20}}>
         <h2>Login</h2>
-        <form onSubmit={submit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div style={{marginBottom:12}}>
-            <label>Login or email</label>
-            <input value={email} onChange={e=>setEmail(e.target.value)} required style={{width:'100%'}} />
+            <label>Email or username</label>
+            <input {...register('identifier')} type="text" className="form-input" />
+            {errors.identifier && <div className="form-error">{errors.identifier.message}</div>}
           </div>
           <div style={{marginBottom:12}}>
             <label>Password</label>
-            <input value={password} onChange={e=>setPassword(e.target.value)} type="password" required style={{width:'100%'}} />
+            <input {...register('password')} type="password" className="form-input" />
+            {errors.password && <div className="form-error">{errors.password.message}</div>}
           </div>
-          {error && <div role="alert" style={{color:'white', background:'#ef4444', padding:8, borderRadius:4, marginBottom:8}}>{error}</div>}
+          {serverError && <div role="alert" className="app-error">{serverError}</div>}
           <button type="submit" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</button>
         </form>
       </div>

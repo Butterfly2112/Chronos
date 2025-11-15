@@ -1,5 +1,4 @@
 .full-screen {
-  padding: 0%;
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
@@ -74,7 +73,6 @@
 
 .bg-landing .landing-card {
   max-width: 900px;
-  padding: 36px;
   border-radius: var(--radius);
 }
 
