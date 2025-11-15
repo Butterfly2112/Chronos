@@ -31,6 +31,8 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  passwordResetToken: String,
+  passwordResetExpires: Date,
   emailConfirmed: {
     type: Boolean,
     default: false,
@@ -85,7 +87,7 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
 };
 
 userSchema.statics.findByEmail = function (email) {
-  return this.findOne({ email: email.toLowerCase() });
+  return this.findOne({ email: email });
 };
 
 userSchema.statics.findByLogin = function (login) {

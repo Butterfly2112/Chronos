@@ -66,9 +66,60 @@ class AuthService {
     return { message: "Email confirmed successfully" };
   }
 
+  async resetEmailConfirmationToken(email) {
+    const user = await User.findByEmail(email);
+    if (!user) {
+      throw new AppError("User with this email does not exist", 404);
+    }
+
+    if (user.emailConfirmed) {
+      throw new AppError("Email already confirmed", 400);
+    }
+
+    const newToken = crypto.randomBytes(32).toString("hex");
+    user.emailConfirmationToken = newToken;
+    await user.save();
+    return newToken;
+  }
+
   async getByEmail(email) {
     const user = await User.findByEmail(email);
     return user;
+  }
+
+  async resetPasswordRequest(email) {
+    const user = await User.findByEmail(email);
+
+    if (!user) {
+      throw new AppError("User wiht this email not found", 404);
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+    user.passwordResetToken = token;
+    const expire = new Date();
+    user.passwordResetExpires = expire.setMinutes(expire.getMinutes() + 15); // 15 minutes
+    await user.save();
+
+    return token;
+  }
+
+  async resetPassword(token, newPassword) {
+    const user = await User.findOne({ passwordResetToken: token });
+
+    if (!user) {
+      throw new AppError("Invalid token", 400);
+    }
+
+    if (new Date() > user.passwordResetExpires) {
+      throw new AppError("Token has expired", 400);
+    }
+
+    user.password = newPassword;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    return { message: "Password has been reset successfully" };
   }
 
   #getSafeUser(user) {

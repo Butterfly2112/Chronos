@@ -37,3 +37,20 @@ export function loginFields(req, res, next) {
   }
   next();
 }
+
+export function passwordReset(req, res, next) {
+  const data = req.body;
+  if (!data.password || !data.confirm_password || !data.token) {
+    return res.status(400).json({
+      error: "All fields are required",
+    });
+  }
+
+  if (data.password !== data.confirm_password) {
+    return res.status(400).json({
+      error: "Confirm password does not match password",
+    });
+  }
+
+  next();
+}

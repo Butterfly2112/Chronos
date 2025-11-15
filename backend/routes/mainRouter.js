@@ -38,4 +38,16 @@ router.get("/auth/me", isAuthenticated, (req, res, next) =>
   authController.getCurrentUser(req, res, next)
 );
 
+router.post("/auth/request-password-reset", (req, res, next) =>
+  authController.requestPasswordReset(req, res, next)
+);
+
+router.get("/auth/reset-password", (req, res, next) =>
+  authController.givePasswordTokenInfo(req, res, next)
+);
+
+router.post("/auth/reset-password", (req, res, next) =>
+  authController.resetPassword(req, res, next)
+);
+
 export default router;

@@ -17,8 +17,8 @@ class EmailService {
       на існуючий бекенд-рут `/api/auth/confirm-email`. Раніше посилання вели на
       `/confirm-email` і викликали 404.
     */
-    const host = process.env.HOST_FOR_EMAIL || process.env.HOST || 'localhost';
-    const port = process.env.PORT_FOR_EMAIL || process.env.PORT || '3000';
+    const host = process.env.HOST_FOR_EMAIL || process.env.HOST || "localhost";
+    const port = process.env.PORT_FOR_EMAIL || process.env.PORT || "3000";
     const url = `http://${host}:${port}/api/auth/confirm-email?token=${token}`;
     const info = await this.transporter.sendMail({
       from: `"Chronos" <${process.env.EMAIL_USER}>`,
@@ -28,6 +28,23 @@ class EmailService {
       html: `
         <h1>Welcome to the Chronos</h1>
         <p>Please, confirm your email by clicking on the link below</p>
+        <a href="${url}">${url}</a>
+      `,
+    });
+    console.log("Message sent: %s", info.messageId);
+  }
+  async sendPasswordResetToken(email, token) {
+    const host = process.env.HOST_FOR_EMAIL || process.env.HOST || "localhost";
+    const port = process.env.PORT_FOR_EMAIL || process.env.PORT || "3000";
+    const url = `http://${host}:${port}/api/auth/reset-password?token=${token}`;
+    const info = await this.transporter.sendMail({
+      from: `"Chronos" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Password Reset",
+      text: `To reset your password, follow the link: ${url}`,
+      html: `
+        <h1>Password Reset Request</h1>
+        <p>Please, reset your password by clicking on the link below</p>
         <a href="${url}">${url}</a>
       `,
     });

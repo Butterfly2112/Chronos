@@ -1,7 +1,6 @@
 import AuthService from "../services/authService.js";
 import EmailService from "../services/emailService.js";
 import AppError from "../utils/AppError.js";
-import crypto from "crypto";
 
 const authService = new AuthService();
 
@@ -67,18 +66,7 @@ class AuthController {
         throw new AppError("Email is required", 400);
       }
 
-      const user = await authService.getByEmail(email);
-      if (!user) {
-        throw new AppError("User with this email does not exist", 404);
-      }
-
-      if (user.emailConfirmed) {
-        throw new AppError("Email already confirmed", 400);
-      }
-
-      const newToken = crypto.randomBytes(32).toString("hex");
-      user.emailConfirmationToken = newToken;
-      await user.save();
+      const newToken = await authService.resetEmailConfirmationToken(email);
 
       const emailService = new EmailService();
       await emailService.sendEmailConfirmationToken(email, newToken);
@@ -113,6 +101,60 @@ class AuthController {
       success: true,
       user: req.session.user,
     });
+  }
+
+  async requestPasswordReset(req, res, next) {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        throw new AppError("Email is required", 400);
+      }
+
+      const token = await authService.resetPasswordRequest(email);
+
+      const emailService = new EmailService();
+      await emailService.sendPasswordResetToken(email, token);
+
+      res.status(200).json({
+        success: true,
+        message: "Password reset email sent",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async givePasswordTokenInfo(req, res, next) {
+    try {
+      const { token } = req.query;
+      if (!token) {
+        throw new AppError("Password reset token is required", 400);
+      }
+
+      res.status(200).json({
+        success: true,
+        message:
+          "Put this request: /api/auth/reset-password and put this token in this request body",
+        token: token,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async resetPassword(req, res, next) {
+    try {
+      const { token, password } = req.body;
+
+      const result = await authService.resetPassword(token, password);
+
+      res.status(200).json({
+        success: true,
+        ...result,
+      });
+    } catch (error) {
+      next(error);
+    }
   }
 }
 

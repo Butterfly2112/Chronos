@@ -289,6 +289,89 @@ Authorization: Session cookie required
 
 ---
 
+#### Password reset request
+
+```http
+POST /api/auth/request-password-reset
+Content-Type: application/json
+{
+  "email": "test@example.com"
+}
+```
+
+**Response:** 200 OK
+
+```json
+{
+  "success": true,
+  "message": "Password reset email sent"
+}
+```
+
+**Algorithm:**
+
+1. Check if user with given email exists
+2. Generate password reset token
+3. Save token to database with it's expiration in 15 minutes
+4. Send email with token
+5. Return success message
+
+---
+
+#### Token info (For debuging on backend)
+
+```http
+GET /api/auth/reset-password?token={password_reset_token}
+```
+
+**Response:** 200 OK
+
+```json
+{
+  "success": true,
+  "message": "Put this request: /api/auth/reset-password and put this token in this request body",
+  "token": "1234abcd1234"
+}
+```
+
+**Algorithm:**
+
+1. Check if token given
+2. Return success message with instructions and token
+
+---
+
+#### Reset Password
+
+```http
+POST api/auth/reset-password
+Content-Type: application/json
+{
+  "token": "1234abcd1234"
+  "password": "testPassword123",
+  "confirm_password": "testPassword123"
+}
+```
+
+**Response:** 200 OK
+
+```json
+{
+  "success": true,
+  "message": "Password has been reset successfully"
+}
+```
+
+**Algorithm:**
+
+1. Validate input data
+2. Find user by given token
+3. Check if token expired
+4. Save new password to database
+5. Return success message
+
+---
+
 ## To be continued...
 
 ---
