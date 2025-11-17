@@ -372,6 +372,52 @@ Content-Type: application/json
 
 ---
 
+### User module
+
+#### Update profile
+
+```http
+PUT api/user/profile
+Authorization: Session cookie required
+Content-Type: application/json
+{
+  "username": "test Test"
+  "email": "newtest@example.com"
+}
+```
+
+**Response:** 200 OK
+
+```json
+{
+  "success": true,
+  "message": "Profile updated successfully.",
+  "user": {
+    "id": "123userid123",
+    "login": "test_user",
+    "username": "Test User",
+    "email": "test@example.com",
+    "profilePicture": "uploads/default_avatar.svg",
+    "role": "user",
+    "emailConfirmed": true
+  }
+}
+```
+
+**Algorithm:**
+
+1. Check if user logged in
+2. Validate input data
+3. If `username` is in the request body: change username and sva to the database
+4. If `email` is in the request body:
+   4.1 Check if email is not taken yet
+   4.2 Generate new email confirmation token
+   4.3 Set `email_confirmed: false`
+   4.4 Send confirmation email with token
+5. Return success message with updated user info
+
+---
+
 ## To be continued...
 
 ---

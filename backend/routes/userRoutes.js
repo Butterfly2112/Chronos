@@ -1,29 +1,15 @@
 import express from "express";
-import {
-    registerUser,
-    loginUser,
-    getUserProfile,
-    updateUser,
-    deleteUser,
-    getSharedCalendars,
-    shareCalendar,
-} from "../controllers/userController.js";
+const userRouter = express.Router();
 
-const router = express.Router();
+import UserController from "../controllers/userController.js";
+const userController = new UserController();
 
-// Реєстрація / Логін
-router.post("/register", registerUser);
-router.post("/login", loginUser);
+import { isAuthenticated } from "../middleware/auth.js";
 
-// Профіль користувача
-router.get("/profile/:id", getUserProfile);
+userRouter.use(isAuthenticated);
 
-// Оновлення / Видалення
-router.put("/:id", updateUser);
-router.delete("/:id", deleteUser);
+userRouter.put("/profile", (req, res, next) => {
+  userController.updateProfile(req, res, next);
+});
 
-// Спільні календарі
-router.get("/:id/shared", getSharedCalendars);
-router.post("/:id/share", shareCalendar);
-
-export default router;
+export default userRouter;
