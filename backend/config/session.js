@@ -1,9 +1,13 @@
 import session from "express-session";
 import MongoStore from "connect-mongo";
+import AppError from "../utils/AppError.js";
 
 const createSessionConfig = () => {
   if (!process.env.MONGO_URI) {
-    throw new Error("MONGO_URI is not defined in environment variables");
+    throw new AppError(
+      "MONGO_URI is not defined in environment variables",
+      500
+    );
   }
 
   return session({

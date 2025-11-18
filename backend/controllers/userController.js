@@ -1,6 +1,7 @@
 import UserService from "../services/userService.js";
 import EmailService from "../services/emailService.js";
 import AppError from "../utils/AppError.js";
+import fs from "fs";
 
 const userService = new UserService();
 
@@ -46,6 +47,33 @@ class UserController {
         user: result.user,
       });
     } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateAvatar(req, res, next) {
+    try {
+      const userId = req.session.user.id;
+
+      if (!req.file) {
+        throw new AppError("No file uploaded", 400);
+      }
+
+      const avatarPath = `uploads/${req.file.filename}`;
+
+      const user = await userService.updateAvatar(userId, avatarPath);
+
+      req.session.user.profilePicture = user.profilePicture;
+
+      res.status(200).json({
+        success: true,
+        message: "Avatar updated successfully.",
+        user: user,
+      });
+    } catch (error) {
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
       next(error);
     }
   }

@@ -23,6 +23,7 @@
 - **bcrypt** - Password hashing
 - **express-session** - Session management
 - **nodemailer** - Email notifications
+- **multer** - file uploading
 
 ## Installation and Setup
 
@@ -415,6 +416,41 @@ Content-Type: application/json
    4.3 Set `email_confirmed: false`
    4.4 Send confirmation email with token
 5. Return success message with updated user info
+
+---
+
+#### Update avatar
+
+```http
+POST api/user/avatar
+Content-Type: multipart/form-data
+Authorization: Session cookie required
+avatar: [file]
+```
+
+**Response: 200**
+
+```json
+{
+  "success": true,
+  "user": {
+    "id": "123userid123",
+    "login": "test_user",
+    "username": "Test User",
+    "email": "test@example.com",
+    "profilePicture": "uploads/123userid123-1763462832345.jpg",
+    "role": "user"
+  }
+}
+```
+
+**Algorithm:**
+
+1. Check if user is logged in
+2. Validate file
+3. Save file to uploads directory
+4. Update user's profile_picture path in database
+5. Return success with file path
 
 ---
 

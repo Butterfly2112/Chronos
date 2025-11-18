@@ -1,6 +1,8 @@
 import User from "../models/User.js";
 import AppError from "../utils/AppError.js";
 import crypto from "crypto";
+import fs from "fs";
+import path from "path";
 
 class UserService {
   async updateProfile(userId, data) {
@@ -33,6 +35,29 @@ class UserService {
       user: this.#getSafeUser(user),
       emailConfirmationToken: user.emailConfirmationToken,
     };
+  }
+
+  async updateAvatar(userId, avatarPath) {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    if (user.avatar && user.avatar !== "uploads/default_avatar.svg") {
+      const oldAvatarPath = path.join(process.cwd(), user.avatar);
+      if (fs.existsSync(oldAvatarPath)) {
+        try {
+          fs.unlinkSync(oldAvatarPath);
+        } catch (err) {
+          console.error("Failed to delete old avatar:", err);
+        }
+      }
+    }
+
+    user.avatar = avatarPath;
+    await user.save();
+
+    return this.#getSafeUser(user);
   }
 
   #getSafeUser(user) {
