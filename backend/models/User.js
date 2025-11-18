@@ -42,11 +42,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "uploads/default_avatar.svg",
   },
-  role: {
-    type: String,
-    enum: ["user", "admin"],
-    default: "user",
-  },
   calendars: [
     {
       type: mongoose.Schema.Types.ObjectId,

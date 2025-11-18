@@ -60,6 +60,33 @@ class UserService {
     return this.#getSafeUser(user);
   }
 
+  async getUserInfo(userId) {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    return this.#getSafeUser(user);
+  }
+
+  async searchUsers(query) {
+    const users = await User.find({
+      $or: [
+        { login: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } },
+        { username: { $regex: query, $options: "i" } },
+      ],
+    }).select("login username email avatar");
+
+    return users.map((user) => ({
+      id: user.id,
+      login: user.login,
+      username: user.username,
+      email: user.email,
+      profilePicture: user.avatar,
+    }));
+  }
+
   #getSafeUser(user) {
     return {
       id: user._id,
@@ -67,7 +94,6 @@ class UserService {
       username: user.username,
       email: user.email,
       profilePicture: user.avatar,
-      role: user.role,
       emailConfirmed: user.emailConfirmed,
     };
   }

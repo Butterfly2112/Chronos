@@ -123,8 +123,7 @@ Content-type: application/json
     "login": "test_user",
     "username": "Test User",
     "email": "test@example.com",
-    "profilePicture": "uploads/default_avatar.svg",
-    "role": "user"
+    "profilePicture": "uploads/default_avatar.svg"
   }
 }
 ```
@@ -220,8 +219,7 @@ OR
     "login": "test_user",
     "username": "Test User",
     "email": "test@example.com",
-    "profilePicture": "uploads/default_avatar.svg",
-    "role": "user"
+    "profilePicture": "uploads/default_avatar.svg"
   }
 }
 ```
@@ -277,8 +275,7 @@ Authorization: Session cookie required
     "login": "test_user",
     "username": "Test User",
     "email": "test@example.com",
-    "profilePicture": "uploads/default_avatar.svg",
-    "role": "user"
+    "profilePicture": "uploads/default_avatar.svg"
   }
 }
 ```
@@ -399,7 +396,6 @@ Content-Type: application/json
     "username": "Test User",
     "email": "test@example.com",
     "profilePicture": "uploads/default_avatar.svg",
-    "role": "user",
     "emailConfirmed": true
   }
 }
@@ -438,8 +434,7 @@ avatar: [file]
     "login": "test_user",
     "username": "Test User",
     "email": "test@example.com",
-    "profilePicture": "uploads/123userid123-1763462832345.jpg",
-    "role": "user"
+    "profilePicture": "uploads/123userid123-1763462832345.jpg"
   }
 }
 ```
@@ -453,6 +448,81 @@ avatar: [file]
 5. Return success with file path
 
 ---
+
+#### Get user by Id
+
+```http
+GET api/user/:id
+```
+
+**Response: 200**
+
+```json
+{
+  "success": true,
+  "user": {
+    "id": "123userid123",
+    "login": "test_user",
+    "username": "Test User",
+    "email": "test@example.com",
+    "profilePicture": "uploads/123userid123-1763462832345.jpg",
+    "emailConfirmed": true
+  }
+}
+```
+
+**Algorithm:**
+
+1. Check if given id exists
+2. Return success message and user
+
+---
+
+#### Search user
+
+```http
+GET api/user/search?query={search_query}
+```
+
+---
+
+**Response: 200**
+
+```json
+{
+  "success": true,
+  "count": 3,
+  "users": [
+    {
+      "id": "123userid123",
+      "login": "test_user",
+      "username": "Test User",
+      "email": "test@example.com",
+      "profilePicture": "uploads/123userid123-1763462832345.jpg"
+    },
+    {
+      "id": "123userid124",
+      "login": "test_user_1",
+      "username": "Test User",
+      "email": "test1@example.com",
+      "profilePicture": "uploads/default_avatar.svg"
+    },
+    {
+      "id": "123userid125",
+      "login": "test_user",
+      "username": "Test User",
+      "email": "test2@example.com",
+      "profilePicture": "uploads/default_avatar.svg"
+    }
+  ]
+}
+```
+
+**Algorithm:**
+
+1. Check if query given
+2. Search all users whose logins, emails or usernames include query text
+3. Return success message, count of users matching and array of users
 
 ## To be continued...
 
@@ -509,8 +579,7 @@ All errors follow this format:
     "login": "johndoe",
     "username": "John Doe",
     "email": "john@example.com",
-    "profilePicture": "uploads/default_avatar.svg",
-    "role": "user"
+    "profilePicture": "uploads/default_avatar.svg"
   }
 }
 ```

@@ -77,6 +77,45 @@ class UserController {
       next(error);
     }
   }
+
+  async getUserInfo(req, res, next) {
+    try {
+      const userId = req.params.id;
+
+      if (!userId) {
+        throw new AppError("User id is required");
+      }
+
+      const user = await userService.getUserInfo(userId);
+
+      res.status(200).json({
+        success: true,
+        user: user,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async searchUser(req, res, next) {
+    try {
+      const { query } = req.query;
+
+      if (!query) {
+        throw new AppError("Search query is required", 400);
+      }
+
+      const users = await userService.searchUsers(query);
+
+      res.status(200).json({
+        success: true,
+        count: users.length,
+        users,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default UserController;

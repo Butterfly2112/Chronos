@@ -8,6 +8,7 @@ import {
   registerFields,
   loginFields,
   isAuthenticated,
+  passwordReset,
 } from "../middleware/auth.js";
 
 authRouter.post("/register", registerFields, (req, res, next) =>
@@ -42,7 +43,7 @@ authRouter.get("/reset-password", (req, res, next) =>
   authController.givePasswordTokenInfo(req, res, next)
 );
 
-authRouter.post("/reset-password", (req, res, next) =>
+authRouter.post("/reset-password", passwordReset, (req, res, next) =>
   authController.resetPassword(req, res, next)
 );
 
