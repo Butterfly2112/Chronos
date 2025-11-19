@@ -64,6 +64,9 @@ export default function Login(){
             {errors.password && <div className="form-error">{errors.password.message}</div>}
           </div>
           {serverError && <div role="alert" className="app-error">{serverError}</div>}
+          <div style={{marginTop:8, marginBottom:12}}>
+            <a href="/forgot-password" className="plain-link">Forgot password?</a>
+          </div>
           <button type="submit" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</button>
         </form>
       </div>

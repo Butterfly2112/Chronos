@@ -101,6 +101,27 @@ input[type="submit"] {
   transition: box-shadow .18s, transform .12s;
 }
 
+.plain-link {
+  color: var(--accent);
+  font-family: 'Yeseva One', Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  padding: 0;
+  line-height: inherit;
+  cursor: pointer;
+  transition: color .12s, text-decoration-color .12s;
+}
+
+.plain-link:hover {
+  color: var(--text);
+  text-decoration-color: rgba(255,255,255,0.28);
+}
+
+
 button.btn-ghost,
 .btn-ghost {
   background: transparent;
