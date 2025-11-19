@@ -12,6 +12,8 @@ export default function mapServerError(err) {
   if (/invalid token|already confirmed|already verified/i.test(msg)) return 'This email is already verified.'
   if (/invalid email/i.test(msg)) return 'Invalid email address.'
   if (/invalid email, login or password|invalid email or password|invalid email or login/i.test(msg)) return 'Invalid credentials.'
+  if (/file_too_large|file is too large|maximum size is 5mb/i.test(msg)) return 'Upload failed: file is too large.'
+  if (/invalid_file_type|only images are allowed|invalid file type/i.test(msg)) return 'Upload failed: invalid file type.'
 
   return typeof apiMessage === 'string' ? apiMessage : 'An unexpected error occurred.'
 }
