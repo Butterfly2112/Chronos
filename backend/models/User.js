@@ -54,6 +54,10 @@ const userSchema = new mongoose.Schema({
       ref: "Calendar",
     },
   ],
+  region: {
+    type: String,
+    default: "Ukraine",
+  },
   createdAt: {
     type: Date,
     default: Date.now,

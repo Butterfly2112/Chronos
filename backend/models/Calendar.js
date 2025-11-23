@@ -1,44 +1,81 @@
 import mongoose from "mongoose";
 
 const calendarSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    description: {
-        type: String,
-        trim: true
-    },
-    color: {
-        type: String,
-        default: "#4E1E4A"
-    },
-    owner: {
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+    maxlength: 100,
+  },
+  description: {
+    type: String,
+    trim: true,
+    maxlength: 500,
+  },
+  color: {
+    type: String,
+    default: "#4E1E4A",
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  sharedWith: [
+    {
+      user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true
+      },
+      eventColor: {
+        type: String,
+        default: "#3788d8",
+      },
     },
-    members: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
-        }
-    ],
-    events: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Event"
-        }
-    ],
-    isDefault: {
-        type: Boolean,
-        default: false
+  ],
+  events: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Event",
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
+  ],
+  isDefault: {
+    type: Boolean,
+    default: false,
+  },
+  isHidden: {
+    type: Boolean,
+    default: false,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-export const Calendar = mongoose.model("Calendar", calendarSchema);
+calendarSchema.index({ owner: 1 });
+calendarSchema.index({ "sharedWith.user": 1 });
+
+calendarSchema.statics.findUserCalendars = function (userId) {
+  return this.find({
+    $or: [{ owner: userId }, { "sharedWith.user": userId }],
+  })
+    .populate("owner", "username email")
+    .populate("sharedWith.user", "username email");
+};
+
+calendarSchema.statics.findCalendarById = function (calendarId) {
+  return this.findOne({ _id: calendarId })
+    .populate("owner", "username email")
+    .populate("sharedWith.user", "username email");
+  /*.populate({
+      path: "events",
+      populate: { path: "creator", select: "username email" },
+    })*/
+};
+
+calendarSchema.methods.isOwner = function (userId, calendarId) {
+  return !!this.findOne({ _id: calendarId, owner: userId });
+};
+
+export default mongoose.model("Calendar", calendarSchema);

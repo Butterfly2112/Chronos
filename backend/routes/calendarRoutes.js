@@ -1,41 +1,23 @@
 import express from "express";
-import {
-    createCalendar,
-    getUserCalendars,
-    getCalendarById,
-    updateCalendar,
-    deleteCalendar,
-    shareCalendar,
-    getCalendarMembers,
-    addEventToCalendar,
-    removeEventFromCalendar,
-} from "../controllers/calendarController.js";
+const calendarRouter = express.Router();
 
-const router = express.Router();
+import CalendarController from "../controllers/calendarController.js";
+const calendarController = new CalendarController();
 
-// Створити новий календар
-router.post("/", createCalendar);
+import { isAuthenticated } from "../middleware/auth.js";
 
-// Отримати всі календарі користувача
-router.get("/user/:userId", getUserCalendars);
+calendarRouter.use(isAuthenticated);
 
-// Отримати один календар
-router.get("/:id", getCalendarById);
+calendarRouter.get("/my", (req, res, next) => {
+  calendarController.getUserCalendars(req, res, next);
+});
 
-// Оновити календар
-router.put("/:id", updateCalendar);
+calendarRouter.post("/create", (req, res, next) => {
+  calendarController.createCalendar(req, res, next);
+});
 
-// Видалити календар
-router.delete("/:id", deleteCalendar);
+calendarRouter.get("/:id", (req, res, next) => {
+  calendarController.getCalendarById(req, res, next);
+});
 
-// Поділитися календарем із користувачем
-router.post("/:id/share", shareCalendar);
-
-// Переглянути, з ким поділений календар
-router.get("/:id/members", getCalendarMembers);
-
-// Додавання і видалення івентів
-router.post("/:id/events", addEventToCalendar);
-router.delete("/:id/events", removeEventFromCalendar);
-
-export default router;
+export default calendarRouter;

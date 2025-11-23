@@ -8,7 +8,7 @@ const handleMongooseError = (err) => {
 
   if (err.name === "ValidationError") {
     const errors = Object.values(err.errors).map((e) => e.message);
-    return new AppError(`Validation error: ${errors.json(", ")}`, 400);
+    return new AppError(`Validation error: ${errors.join(", ")}`, 400);
   }
 
   if (err.name === "CastError") {
@@ -31,7 +31,7 @@ const errorHandler = (err, req, res, next) => {
     return res.status(statusCode).json({
       status: "error",
       message,
-      stack: errorHandler.stack,
+      stack: err.stack,
       error: err,
     });
   }

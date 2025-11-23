@@ -484,8 +484,6 @@ GET api/user/:id
 GET api/user/search?query={search_query}
 ```
 
----
-
 **Response: 200**
 
 ```json
@@ -523,6 +521,156 @@ GET api/user/search?query={search_query}
 1. Check if query given
 2. Search all users whose logins, emails or usernames include query text
 3. Return success message, count of users matching and array of users
+
+---
+
+### Calendar module
+
+#### Create calendar
+
+```http
+POST api/calendar/create
+Authorization: Session cookie required
+Content-Type: application/json
+```
+
+{
+"name": "Test Calendar",
+"color": "#79BAEC",
+"description": "Just test calendar"
+}
+
+**Response: 200**
+
+```json
+{
+  "success": true,
+  "message": "Calendar created successfully",
+  "calendar": {
+    "name": "Test Calendar",
+    "description": "Just test calendar",
+    "color": "#79BAEC",
+    "owner": "123userid124",
+    "events": [],
+    "isDefault": false,
+    "isHidden": false,
+    "_id": "12345calendarid12345",
+    "sharedWith": [],
+    "createdAt": "2025-11-22T23:34:28.351Z",
+    "__v": 0
+  }
+}
+```
+
+**Algorithm:**
+
+1. Check if logged in
+2. Validate input data: `name` - required, other - optional
+3. Save calendar to database
+4. Update user calendar array
+5. Return success message and calendar
+
+---
+
+#### Get calendar by id
+
+```http
+GET api/calendar/:id
+Authorization: Session cookie required
+```
+
+**Response: 200**
+
+```json
+{
+  "success": true,
+  "calendar": {
+    "_id": "12345calendarid12345",
+    "name": "Test Calendar",
+    "description": "Just test calendar",
+    "color": "#79BAEC",
+    "owner": {
+      "_id": "123userid124",
+      "username": "Test User",
+      "email": "test@example.com"
+    },
+    "events": [],
+    "isDefault": false,
+    "isHidden": false,
+    "sharedWith": [],
+    "createdAt": "2025-11-22T23:34:28.351Z",
+    "__v": 0
+  }
+}
+```
+
+**Algorithm:**
+
+1. Check if logged in
+2. Check if calendar with such id exists
+3. Check if user has permission to view this calendar
+4. Return success message and calendar
+
+---
+
+#### Get all user callendars
+
+```http
+GET api/calendar/my
+Authorization: Session cookie required
+```
+
+**Response: 200**
+
+```json
+{
+  "success": true,
+  "count": 2,
+  "calendars": [
+    {
+      "_id": "12345calendarid12345",
+      "name": "Test Calendar",
+      "description": "Just test calendar",
+      "color": "#79BAEC",
+      "owner": {
+        "_id": "123userid124",
+        "username": "Test User",
+        "email": "test@example.com"
+      },
+      "events": [],
+      "isDefault": false,
+      "isHidden": false,
+      "sharedWith": [],
+      "createdAt": "2025-11-22T23:34:28.351Z",
+      "__v": 0
+    },
+    {
+      "_id": "12345calendarid12346",
+      "name": "Test2",
+      "description": "Second calendar",
+      "color": "#79FAEC",
+      "owner": {
+        "_id": "123userid124",
+        "username": "Test User",
+        "email": "test@example.com"
+      },
+      "events": [],
+      "isDefault": false,
+      "isHidden": false,
+      "sharedWith": [],
+      "createdAt": "2025-11-23T00:26:14.068Z",
+      "__v": 0
+    }
+  ]
+}
+```
+
+**Algorithm:**
+
+1. Check if logged in
+2. Return success message and array of that user calendars
+
+---
 
 ## To be continued...
 
