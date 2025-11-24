@@ -1,43 +1,47 @@
 import express from "express";
-import {
-    createEvent,
-    getCalendarEvents,
-    getEventById,
-    updateEvent,
-    deleteEvent,
-    inviteUserToEvent,
-    getInvitedEvents,
-    updateEventStatus,
-    repeatEvent,
-} from "../controllers/eventController.js";
+const eventRouter = express.Router();
 
-const router = express.Router();
+import EventController from "../controllers/eventController.js";
+const eventController = new EventController();
 
-// Створити нову подію
-router.post("/", createEvent);
+import { isAuthenticated } from "../middleware/auth.js";
 
-// Отримати всі події календаря
-router.get("/calendar/:calendarId", getCalendarEvents);
+eventRouter.use(isAuthenticated);
 
-// Отримати конкретну подію
-router.get("/:id", getEventById);
+eventRouter.get("/calendar/:calendarId", (req, res, next) => {
+    eventController.getCalendarEvents(req, res, next);
+});
 
-// Оновити подію
-router.put("/:id", updateEvent);
+eventRouter.post("/create", (req, res, next) => {
+    eventController.createEvent(req, res, next);
+});
 
-// Видалити подію
-router.delete("/:id", deleteEvent);
+eventRouter.put("/:id", (req, res, next) => {
+    eventController.updateEvent(req, res, next);
+});
 
-// Запросити користувача на подію
-router.post("/:id/invite", inviteUserToEvent);
+eventRouter.delete("/:id", (req, res, next) => {
+    eventController.deleteEvent(req, res, next);
+});
 
-// Події, на які користувача запросили
-router.get("/invited/:userId", getInvitedEvents);
+eventRouter.post("/:id/invite", (req, res, next) => {
+    eventController.inviteUser(req, res, next);
+});
 
-// Змінити статус завдання
-router.patch("/:id/status", updateEventStatus);
+eventRouter.get("/invited/:userId", (req, res, next) => {
+    eventController.getInvitedEvents(req, res, next);
+});
 
-// Повторювана подія
-router.post("/:id/repeat", repeatEvent);
+eventRouter.patch("/:id/status", (req, res, next) => {
+    eventController.updateStatus(req, res, next);
+});
 
-export default router;
+eventRouter.post("/:id/repeat", (req, res, next) => {
+    eventController.updateRepeat(req, res, next);
+});
+
+eventRouter.get("/:id", (req, res, next) => {
+    eventController.getEventById(req, res, next);
+});
+
+export default eventRouter;

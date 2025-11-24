@@ -14,9 +14,10 @@ class CalendarService {
       isDefault: false,
     });
 
-    await User.findByIdAndUpdate(userId, {
-      $push: { calendars: calendar._id },
-    });
+    await User.findOneAndUpdate(
+        { _id: userId },
+        { $push: { calendars: calendar._id } }
+    );
 
     return calendar;
   }

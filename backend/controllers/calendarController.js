@@ -30,9 +30,15 @@ class CalendarController {
 
   async getUserCalendars(req, res, next) {
     try {
+
       const userId = req.session.user.id;
 
-      const calendars = await calendarService.getUserCallendars(userId);
+      let calendars = await calendarService.getUserCallendars(userId);
+
+      if (!calendars.length) {
+        await calendarService.createDefaultCalendar(userId);
+        calendars = await calendarService.getUserCallendars(userId);
+      }
 
       res.status(200).json({
         success: true,

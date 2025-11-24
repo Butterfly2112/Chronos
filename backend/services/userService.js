@@ -14,7 +14,7 @@ class UserService {
     }
 
     if (email && email !== user.email) {
-      const emailExists = await User.findByEmail(email);
+      const emailExists = await User.findOne({ email });
       if (emailExists) {
         throw new AppError("Email already in use", 409);
       }
@@ -79,7 +79,7 @@ class UserService {
     }).select("login username email avatar");
 
     return users.map((user) => ({
-      id: user.id,
+      id: user._id.toString(),
       login: user.login,
       username: user.username,
       email: user.email,

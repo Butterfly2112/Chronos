@@ -1,14 +1,19 @@
 import AuthService from "../services/authService.js";
 import EmailService from "../services/emailService.js";
 import AppError from "../utils/AppError.js";
+import CalendarService from "../services/calendarService.js";
+import User from "../models/User.js";
 
 const authService = new AuthService();
+const calendarService = new CalendarService();
 
 class AuthController {
   async register(req, res, next) {
     try {
       const userData = req.body;
       const { user, token } = await authService.register(userData);
+
+      await calendarService.createDefaultCalendar(user.id);
 
       const emailService = new EmailService();
       emailService
@@ -29,6 +34,11 @@ class AuthController {
     try {
       const { identifier, password } = req.body;
       const user = await authService.login(identifier, password);
+
+      const fullUser = await User.findById(user.id);
+      if (!fullUser.calendars.length) {
+        await calendarService.createDefaultCalendar(user.id);
+      }
 
       req.session.user = user;
 

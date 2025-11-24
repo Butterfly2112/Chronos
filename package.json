@@ -9,6 +9,7 @@
   "private": true,
   "dependencies": {
     "mongodb": "4.1",
-    "mongoose": "^8.19.3"
+    "mongoose": "^8.19.3",
+    "react-mobile-datepicker": "^4.0.2"
   }
 }
