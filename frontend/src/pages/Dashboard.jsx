@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import { Link } from 'react-router-dom'
 import { AuthContext } from '../contexts/AuthContext'
+import CalendarView from '../components/CalendarView'
 
 export default function Dashboard(){
   const { user } = useContext(AuthContext)
@@ -30,19 +31,9 @@ export default function Dashboard(){
     <div className="full-screen">
       <div style={{maxWidth:1000, margin:'0 auto'}}>
         <section style={{display:'flex', gap:20}}>
-          <aside style={{width:260, background:'var(--card)', padding:16}}> 
-            <h3>Your calendars</h3>
-            {/* Тут буде список календарів користувача: main + додаткові */}
-            <p>(placeholder)</p>
-          </aside>
           <div style={{flex:1}}>
             <div style={{background:'var(--card)', padding:16}}>
-              <h2>Calendar view (month)</h2>
-              {/* Основна область для відображення подій у вигляді календаря */}
-              <p>This is a placeholder calendar area.</p>
-              <div style={{height:380, border:'1px dashed #d1d5db', display:'flex', alignItems:'center', justifyContent:'center'}}>
-                <button>Create event (go to /events/new)</button>
-              </div>
+              <CalendarView apiBase="http://localhost:3000/api" />
             </div>
           </div>
         </section>
