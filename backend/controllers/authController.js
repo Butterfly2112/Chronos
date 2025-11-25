@@ -1,5 +1,6 @@
 import AuthService from "../services/authService.js";
 import EmailService from "../services/emailService.js";
+import CalendarService from "../services/calendarService.js";
 import AppError from "../utils/AppError.js";
 import CalendarService from "../services/calendarService.js";
 import User from "../models/User.js";
@@ -11,7 +12,7 @@ class AuthController {
   async register(req, res, next) {
     try {
       const userData = req.body;
-      const { user, token } = await authService.register(userData);
+      const { user, userId, token } = await authService.register(userData);
 
       await calendarService.createDefaultCalendar(user.id);
 
@@ -19,6 +20,13 @@ class AuthController {
       emailService
         .sendEmailConfirmationToken(user.email, token)
         .catch((err) => console.error("Email sending error:", err));
+
+      const calendarService = new CalendarService();
+      calendarService
+        .createDefaultCalendar(userId)
+        .catch((error) =>
+          console.error("Failed to create default calendar:", error)
+        );
 
       res.status(201).json({
         success: true,

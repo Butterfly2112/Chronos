@@ -524,6 +524,31 @@ GET api/user/search?query={search_query}
 
 ---
 
+#### Delete account (WILL BE ENCHANTED TO HAVE MORE SECURITY)
+
+```http
+DELETE api/user/profile
+Authorization: Session cookie required
+```
+
+**Response: 200**
+
+```json
+{
+  "success": true,
+  "message": "User deleted successfully"
+}
+```
+
+**Algorithm:**
+
+1. Check if user logged in
+2. Delete user avatar from local storage
+3. Delete user account
+4. Return success message
+
+---
+
 ### Calendar module
 
 #### Create calendar

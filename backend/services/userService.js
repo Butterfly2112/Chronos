@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import AppError from "../utils/AppError.js";
+import Calendar from "../models/Calendar.js";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
@@ -85,6 +86,40 @@ class UserService {
       email: user.email,
       profilePicture: user.avatar,
     }));
+  }
+
+  async deleteUser(userId) {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    if (user.avatar && user.avatar !== "uploads/default_avatar.svg") {
+      const avatarPath = path.join(process.cwd(), user.avatar);
+      if (fs.existsSync(avatarPath)) {
+        try {
+          fs.unlinkSync(avatarPath);
+        } catch (err) {
+          console.error("Failed to delete avatar:", err);
+        }
+      }
+    }
+
+    await Calendar.deleteMany({ owner: userId });
+
+    await Calendar.updateMany(
+      { "sharedWith.user": userId },
+      { $pull: { sharedWith: { user: userId } } }
+    );
+
+    await User.updateMany(
+      { sharedWithMe: { $in: user.calendars } },
+      { $pull: { sharedWithMe: { $in: user.calendars } } }
+    );
+
+    await user.deleteOne();
+
+    return { message: "User deleted successfully" };
   }
 
   #getSafeUser(user) {

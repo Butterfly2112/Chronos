@@ -19,6 +19,10 @@ userRouter.get("/search", (req, res, next) => {
   userController.searchUser(req, res, next);
 });
 
+userRouter.delete("/profile", isAuthenticated, (req, res, next) => {
+  userController.deleteUser(req, res, next);
+});
+
 // Обов'язково має бути останнім роутом, щоб не конфліктував з іншими
 userRouter.get("/:id", (req, res, next) => {
   userController.getUserInfo(req, res, next);

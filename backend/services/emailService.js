@@ -2,7 +2,6 @@ import nodemailer from "nodemailer";
 
 class EmailService {
   constructor() {
-    console.log(process.env.EMAIL_USER, process.env.EMAIL_PASS);
     this.transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -27,11 +26,15 @@ class EmailService {
     console.log("Message sent: %s", info.messageId);
   }
   async sendPasswordResetToken(email, token) {
-    const protocol = process.env.FRONTEND_PROTOCOL || 'http'
-    const host = process.env.FRONTEND_HOST || process.env.HOST_FOR_EMAIL || process.env.HOST || 'localhost'
-    const port = process.env.FRONTEND_PORT || '3001'
-    const portPart = port ? `:${port}` : ''
-    const url = `${protocol}://${host}${portPart}/reset-password?token=${token}`
+    const protocol = process.env.FRONTEND_PROTOCOL || "http";
+    const host =
+      process.env.FRONTEND_HOST ||
+      process.env.HOST_FOR_EMAIL ||
+      process.env.HOST ||
+      "localhost";
+    const port = process.env.FRONTEND_PORT || "3001";
+    const portPart = port ? `:${port}` : "";
+    const url = `${protocol}://${host}${portPart}/reset-password?token=${token}`;
     const info = await this.transporter.sendMail({
       from: `"Chronos" <${process.env.EMAIL_USER}>`,
       to: email,

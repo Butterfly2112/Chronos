@@ -116,6 +116,27 @@ class UserController {
       next(error);
     }
   }
+
+  async deleteUser(req, res, next) {
+    try {
+      const userId = req.session.user.id;
+
+      await userService.deleteUser(userId);
+
+      req.session.destroy((err) => {
+        if (err) {
+          console.error("Failed to destroy session:", err);
+        }
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "User deleted successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default UserController;

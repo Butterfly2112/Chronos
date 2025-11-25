@@ -67,15 +67,15 @@ calendarSchema.statics.findUserCalendars = function (userId) {
 calendarSchema.statics.findCalendarById = function (calendarId) {
   return this.findOne({ _id: calendarId })
     .populate("owner", "username email")
-    .populate("sharedWith.user", "username email");
-  /*.populate({
+    .populate("sharedWith.user", "username email")
+    .populate({
       path: "events",
       populate: { path: "creator", select: "username email" },
-    })*/
+    });
 };
 
-calendarSchema.methods.isOwner = function (userId, calendarId) {
-  return !!this.findOne({ _id: calendarId, owner: userId });
+calendarSchema.methods.isOwner = function (userId) {
+  return this.owner.toString() === userId.toString();
 };
 
 export default mongoose.model("Calendar", calendarSchema);

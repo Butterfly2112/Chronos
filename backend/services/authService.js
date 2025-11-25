@@ -28,6 +28,7 @@ class AuthService {
 
     return {
       user: this.#getSafeUser(user),
+      userId: user._id,
       token: emailConfirmationToken,
     };
   }
