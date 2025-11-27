@@ -2,7 +2,6 @@ import AuthService from "../services/authService.js";
 import EmailService from "../services/emailService.js";
 import CalendarService from "../services/calendarService.js";
 import AppError from "../utils/AppError.js";
-import CalendarService from "../services/calendarService.js";
 import User from "../models/User.js";
 
 const authService = new AuthService();

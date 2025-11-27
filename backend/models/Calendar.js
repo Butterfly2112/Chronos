@@ -75,7 +75,8 @@ calendarSchema.statics.findCalendarById = function (calendarId) {
 };
 
 calendarSchema.methods.isOwner = function (userId) {
-  return this.owner.toString() === userId.toString();
+  const ownerId = this.owner._id || this.owner;
+  return ownerId.toString() === userId.toString();
 };
 
 export default mongoose.model("Calendar", calendarSchema);

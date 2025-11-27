@@ -16,8 +16,28 @@ calendarRouter.post("/create", (req, res, next) => {
   calendarController.createCalendar(req, res, next);
 });
 
+calendarRouter.post("/:id/share", (req, res, next) => {
+  calendarController.shareCalendar(req, res, next);
+});
+
+calendarRouter.post("/:id/unshare", (req, res, next) => {
+  calendarController.unshareCalendar(req, res, next);
+});
+
+calendarRouter.get("/:id/members", (req, res, next) => {
+  calendarController.getSharedUsersOfCalendar(req, res, next);
+});
+
 calendarRouter.get("/:id", (req, res, next) => {
   calendarController.getCalendarById(req, res, next);
+});
+
+calendarRouter.put("/:id", (req, res, next) => {
+  calendarController.updateCalendar(req, res, next);
+});
+
+calendarRouter.delete("/:id", (req, res, next) => {
+  calendarController.deleteCalendar(req, res, next);
 });
 
 export default calendarRouter;

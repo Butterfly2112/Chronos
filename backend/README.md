@@ -557,13 +557,12 @@ Authorization: Session cookie required
 POST api/calendar/create
 Authorization: Session cookie required
 Content-Type: application/json
-```
-
 {
 "name": "Test Calendar",
 "color": "#79BAEC",
 "description": "Just test calendar"
 }
+```
 
 **Response: 200**
 
@@ -694,6 +693,193 @@ Authorization: Session cookie required
 
 1. Check if logged in
 2. Return success message and array of that user calendars
+
+---
+
+#### Update calendar
+
+```http
+PUT api/calendar/:id
+Authorization: Session cookie required
+Content-Type: application/json
+{
+  "description": "Now it changed",
+  "name": "changed test"
+}
+```
+
+**Response: 200**
+
+```json
+{
+  "succes": true,
+  "message": "Calendar updated successfully",
+  "calendar": {
+    "_id": "12345calendarid12346",
+    "name": "changed test",
+    "description": "Now it changed",
+    "color": "#79FAAC",
+    "owner": "123userid124",
+    "events": [],
+    "isDefault": false,
+    "isHidden": false,
+    "sharedWith": [],
+    "createdAt": "2025-11-23T00:26:14.068Z",
+    "__v": 0
+  }
+}
+```
+
+**Algorithm:**
+
+1. Check if logged in
+2. Check if user is owner of the calendar
+3. Update calendar and save it to the database
+4. Return success message and updated calendar
+
+---
+
+#### Delete calendar
+
+```http
+DELETE api/calendar/:id
+Authorization: Session cookie required
+```
+
+**Response: 200**
+
+```json
+{
+  "success": true,
+  "message": "Calendar deleted successfully"
+}
+```
+
+**Algorithm:**
+
+1. Check if logged in
+2. Check if user is owner of the calendar
+3. Delete calendar
+4. Return success message
+
+---
+
+#### Share calendar
+
+```http
+PUT api/calendar/:id/share
+Authorization: Session cookie required
+Content-Type: application/json
+{
+  "target_user_id": "12345calendarid12346"
+}
+```
+
+**Response: 200**
+
+```json
+{
+  "success": true,
+  "message": "User were invited successfully"
+}
+```
+
+**Algorithm:**
+
+1. Check if logged in
+2. Check if user is owner
+3. Send message to the user who is being shared with
+4. Return success message
+
+---
+
+#### Get Calendar members
+
+```http
+GET api/calendar/:id/members
+Authorization: Session cookie required
+```
+
+**Response: 200**
+
+```json
+{
+  "success": true,
+  "owner": {
+    "_id": "123userid124",
+    "username": "Test User",
+    "email": "test@example.com"
+  },
+  "members": [
+    {
+      "user": {
+        "_id": "123userid123",
+        "username": "Test User",
+        "email": "test@example.com"
+      },
+      "eventColor": "#BB8FCE",
+      "_id": "12345calendarid12346"
+    }
+  ]
+}
+```
+
+**Algorithm:**
+
+1. Check if user logged in
+2. Check if user has access to this calendar
+3. Return success message, owner and all users that this calendar was shared with
+
+---
+
+#### Unshare from calendar
+
+```http
+POST api/calendar/:id/unshare
+Authorization: Session cookie required
+Content-Type: application/json
+{
+  "user_to_unshare": "69100cadafc8b09d081eca86"
+}
+```
+
+**Response: 200**
+
+```json
+{
+  "success": true,
+  "message": "User removed from calendar successfully",
+  "calendar": {
+    "_id": "12345calendarid12346",
+    "name": "changed test",
+    "description": "Now it changed",
+    "color": "#79FAAC",
+    "owner": {
+      "_id": "123userid124",
+      "username": "Test User",
+      "email": "test@example.com"
+    },
+    "events": [],
+    "isDefault": false,
+    "isHidden": false,
+    "sharedWith": [],
+    "createdAt": "2025-11-26T23:02:56.661Z",
+    "__v": 4
+  },
+  "removedUser": {
+    "_id": "69100cadafc8b09d081eca86",
+    "username": "Tey Tey",
+    "email": "dianamalasta@gmail.com"
+  }
+}
+```
+
+**Algorithm:**
+
+1. Check if user logged in
+2. Check if user has access to this calendar
+3. Delete user access to the calendar
+4. Return success message and updated calendar info
 
 ---
 
