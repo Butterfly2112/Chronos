@@ -75,12 +75,16 @@ export default function Header(){
                   {preview ? (
                     <img src={preview} alt="preview" className="avatar-img" onError={() => setImgFailed(true)} />
                   ) : !imgFailed ? (
-                    <img
-                      src={user.profilePicture ? `${BACKEND_ROOT}/${String(user.profilePicture).replace(/^\/+/, '')}` : '/uploads/default_avatar.svg'}
-                      alt="avatar"
-                      className="avatar-img"
-                      onError={() => setImgFailed(true)}
-                    />
+                    user.profilePicture ? (
+                      <img
+                        src={`${BACKEND_ROOT}/${String(user.profilePicture).replace(/^\/+/, '')}`}
+                        alt="avatar"
+                        className="avatar-img"
+                        onError={() => setImgFailed(true)}
+                      />
+                    ) : (
+                      <div className="avatar-initials">{getInitials(user.username || user.login || user.email)}</div>
+                    )
                   ) : (
                     getInitials(user.username || user.login || user.email)
                   )}

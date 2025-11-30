@@ -328,6 +328,32 @@ export default function CalendarView({ apiBase = '/api' }) {
         borderColor: ev.color
       }));
 
+      // Also load events where current user was invited and merge them
+      try {
+        if (me && me.id) {
+          const invitedRes = await api.get(`/event/invited/${me.id}`);
+          const invitedEvents = (invitedRes.data?.events || []).map(ev => ({
+            id: ev._id,
+            title: ev.title,
+            start: ev.startDate,
+            end: ev.endDate,
+            backgroundColor: ev.color,
+            borderColor: ev.color
+          }));
+
+          // Merge unique by id
+          const seen = new Set(events.map(e => String(e.id)));
+          for (const ie of invitedEvents) {
+            if (!seen.has(String(ie.id))) {
+              events.push(ie);
+              seen.add(String(ie.id));
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load invited events:', err);
+      }
+
       successCallback(events);
 
     } catch (err) {
@@ -383,6 +409,12 @@ export default function CalendarView({ apiBase = '/api' }) {
           isOpen={inviteModalOpen}
           eventId={selectedEventData?._id}
           onClose={() => setInviteModalOpen(false)}
+          onInvited={async () => {
+            try {
+              if (selectedEventData?._id) await openEventDetails(selectedEventData._id);
+            } catch (e) { console.error('Failed to refresh event after invite', e); }
+            try { calendarRef.current?.getApi().refetchEvents(); } catch (e) {}
+          }}
       />
 
       <EventDeleteModal

@@ -6,7 +6,7 @@ import User from "../models/User.js";
 import Calendar from "../models/Calendar.js";
 
 const authService = new AuthService();
-const calendarService = new CalendarService();
+
 
 class AuthController {
   async register(req, res, next) {
@@ -14,19 +14,19 @@ class AuthController {
       const userData = req.body;
       const { user, userId, token } = await authService.register(userData);
 
-      await calendarService.createDefaultCalendar(user.id);
+      try {
+        const calendarService = new CalendarService();
+        await calendarService.createDefaultCalendar(userId);
+      } catch (err) {
+      // Якщо календар за замовчуванням вже існує або сталася будь-яка інша нефатальна помилка, 
+      // зареєструвати її та продовжити процес реєстрації.
+        console.error("Failed to create default calendar:", err?.message || err);
+      }
 
       const emailService = new EmailService();
       emailService
         .sendEmailConfirmationToken(user.email, token)
         .catch((err) => console.error("Email sending error:", err));
-
-      const calendarService = new CalendarService();
-      calendarService
-        .createDefaultCalendar(userId)
-        .catch((error) =>
-          console.error("Failed to create default calendar:", error)
-        );
 
       res.status(201).json({
         success: true,
@@ -46,6 +46,7 @@ class AuthController {
       const fullUser = await User.findById(user.id);
       if (!fullUser.calendars.length) {
         try {
+          const calendarService = new CalendarService();
           await calendarService.createDefaultCalendar(user.id);
         } catch (err) {
             // Якщо створення дефолтного календаря провалилось з повідомленням
