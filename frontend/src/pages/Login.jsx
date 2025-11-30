@@ -49,7 +49,7 @@ export default function Login(){
   }
 
   return (
-    <div className="full-screen bg-auth playwrite">
+    <div className="full-screen bg-auth playwrite" style={{paddingTop:'5%'}}>
       <div style={{maxWidth:420, margin:'0 auto', background:'var(--card)', padding:20}}>
         <h2>Login</h2>
         <form onSubmit={handleSubmit(onSubmit)}>

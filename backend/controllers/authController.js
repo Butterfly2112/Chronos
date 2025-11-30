@@ -3,6 +3,7 @@ import EmailService from "../services/emailService.js";
 import CalendarService from "../services/calendarService.js";
 import AppError from "../utils/AppError.js";
 import User from "../models/User.js";
+import Calendar from "../models/Calendar.js";
 
 const authService = new AuthService();
 const calendarService = new CalendarService();
@@ -44,7 +45,24 @@ class AuthController {
 
       const fullUser = await User.findById(user.id);
       if (!fullUser.calendars.length) {
-        await calendarService.createDefaultCalendar(user.id);
+        try {
+          await calendarService.createDefaultCalendar(user.id);
+        } catch (err) {
+            // Якщо створення дефолтного календаря провалилось з повідомленням
+            // "Default calendar already exists" (тобто документ календаря
+            // вже існує в колекції, але поле `user.calendars` порожнє), то не провалюємо логін
+          if (
+            err?.message?.includes("Default calendar already exists") ||
+            err?.statusCode === 400
+          ) {
+            const existingDefault = await Calendar.findOne({ owner: user.id, isDefault: true });
+            if (existingDefault) {
+              await User.findByIdAndUpdate(user.id, { $addToSet: { calendars: existingDefault._id } });
+            }
+          } else {
+            throw err;
+          }
+        }
       }
 
       req.session.user = user;

@@ -6,9 +6,13 @@
   padding-left: 16px;
   padding-right: 16px;
   display: block;
-  padding-top: 5%;
+  padding-top: 1%;
   padding-bottom: 16px;
   min-height: calc(100vh - var(--header-height, 64px));
+  background-image: url(/fon1.jpg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .full-screen .form-row {

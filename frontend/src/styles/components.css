@@ -20,8 +20,7 @@
 .btn-primary {
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
   color: #0a0a0a;
-  box-shadow: 0 8px 30px rgba(255,45,149,0.12), 0 4px 12px rgba(0,230,255,0.06) inset;
-  text-shadow: 0 1px 0 rgba(0,0,0,0.12);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.06), 0 4px 12px rgba(210,150,92,0.08);
 }
 
 .btn-ghost {
@@ -96,7 +95,6 @@ input[type="submit"] {
   font-weight: 600;
   background: var(--muted);
   color: #0a0a0a;
-  box-shadow: 0 8px 30px rgba(255,45,149,0.12), 0 4px 12px rgba(0,230,255,0.06) inset;
   text-shadow: 0 1px 0 rgba(0,0,0,0.12);
   transition: box-shadow .18s, transform .12s;
 }
@@ -136,7 +134,6 @@ input[disabled] {
   cursor: not-allowed;
 }
 
-/* Ensure nav-link looks like a simple text link even when applied to <button> */
 button.nav-link,
 .nav-link {
   background: transparent !important;
@@ -216,7 +213,7 @@ button.nav-link:hover,
   color: #fff;
   font-size: 16px;
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  overflow: hidden; /* Ensure the image is cropped */
+  overflow: hidden;
 }
 
 .avatar { cursor: pointer; position: relative; }
@@ -230,4 +227,14 @@ button.nav-link:hover,
   background: rgba(0,0,0,0.35);
   color: #fff;
   font-size: 12px;
+}
+
+.calendar-wrapper .fc .fc-toolbar .fc-button,
+.calendar-wrapper .fc .fc-button,
+.calendar-wrapper .fc .fc-toolbar .fc-prev-button,
+.calendar-wrapper .fc .fc-toolbar .fc-next-button,
+.calendar-wrapper .fc .fc-toolbar .fc-button.fc-button-active,
+.calendar-wrapper .fc .fc-toolbar .fc-button.fc-button-primary {
+  background: #af9683 !important;
+  color: #0a0a0a !important;
 }

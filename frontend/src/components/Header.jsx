@@ -63,7 +63,6 @@ export default function Header(){
       <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', width:'100%', padding:0}}>
         <Link to="/" className="brand" style={{marginLeft:'15px', paddingLeft:0}}>Chronos</Link>
         <nav style={{display:'flex',gap:12, alignItems:'center', marginRight:0, paddingRight:0}}>
-          {/* calendar link intentionally removed while feature is disabled */}
           {!user && (
             <>
               <Link to="/login" className="nav-link">Login</Link>
@@ -93,8 +92,6 @@ export default function Header(){
               <button onClick={logout} className="btn btn-ghost">Logout</button>
             </div>
           )}
-
-          {/* theme toggle removed — single theme in use */}
         </nav>
       </div>
     </header>
