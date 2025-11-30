@@ -10,6 +10,7 @@ import EventCreateModal from "../components/modals/EventCreateModal";
 import EventViewModal from "../components/modals/EventViewModal";
 import EventEditModal from "../components/modals/EventEditModal";
 import EventInviteModal from "../components/modals/EventInviteModal";
+import CalendarShareModal from "../components/modals/CalendarShareModal";
 import EventDeleteModal from "../components/modals/EventDeleteModal";
 
 export default function CalendarView({ apiBase = '/api' }) {
@@ -37,6 +38,9 @@ export default function CalendarView({ apiBase = '/api' }) {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [shareCalendarId, setShareCalendarId] = useState(null);
+  const [menuOpenId, setMenuOpenId] = useState(null);
 
   // Інформація про користувача з контексту аутентифікації
   const { user: authUser, loading: authLoading } = useContext(AuthContext);
@@ -196,6 +200,13 @@ export default function CalendarView({ apiBase = '/api' }) {
     handleAuthChange();
   }, [authUser]);
 
+  useEffect(() => {
+    if (!menuOpenId) return;
+    const handler = () => setMenuOpenId(null);
+    window.addEventListener('click', handler);
+    return () => window.removeEventListener('click', handler);
+  }, [menuOpenId]);
+
   // Створити новий календар (modal)
   async function createCalendar(e) {
     e.preventDefault();
@@ -267,6 +278,25 @@ export default function CalendarView({ apiBase = '/api' }) {
     } catch (err) {
       console.error('Delete calendar failed', err);
       const msg = err?.response?.data?.message || err?.response?.data?.error || 'Error deleting calendar';
+      alert(msg);
+    }
+  }
+
+  // Удалить календарь только для текущего пользователя (самоудаление из shared)
+  async function removeCalendarForSelf(cal) {
+    const id = cal._id || cal.id;
+    if (!confirm('Do you want to remove this calendar from your account?')) return;
+
+    try {
+      const res = await api.post(`/calendar/${id}/unshare`, { user_to_unshare: me.id });
+
+      // Если операция успешна — удалить календарь из локального списка
+      setCalendars(prev => prev.filter(c => (c._id || c.id) !== id));
+      setSelectedCalendar(prev => (prev === id ? null : prev));
+      alert('Calendar removed from your account');
+    } catch (err) {
+      console.error('Failed to remove calendar for self', err);
+      const msg = err?.response?.data?.message || err?.response?.data?.error || 'Error removing calendar';
       alert(msg);
     }
   }
@@ -417,6 +447,16 @@ export default function CalendarView({ apiBase = '/api' }) {
           }}
       />
 
+      <CalendarShareModal
+          isOpen={shareModalOpen}
+          calendarId={shareCalendarId}
+          onClose={() => setShareModalOpen(false)}
+          onShared={async () => {
+            try { await loadCalendars(); } catch(e){}
+            try { calendarRef.current?.getApi().refetchEvents(); } catch(e){}
+          }}
+      />
+
       <EventDeleteModal
           isOpen={deleteModalOpen}
           eventId={selectedEventData?._id}
@@ -456,6 +496,8 @@ export default function CalendarView({ apiBase = '/api' }) {
                 const calId = cal._id || cal.id;
                 const isActive = selectedCalendar === calId;
                 const isHidden = hiddenCalendars.includes(calId);
+                const ownerId = (cal.owner && (cal.owner._id || cal.owner.id)) || cal.owner;
+                const isOwner = me && ownerId && String(ownerId) === String(me.id);
                 return (
                   <li
                     key={calId}
@@ -470,15 +512,90 @@ export default function CalendarView({ apiBase = '/api' }) {
                       <div style={{marginLeft:8,padding:'2px 6px',background:'rgba(255,255,255,0.03)',borderRadius:6,fontSize:12}}>Default</div>
                     )}
                     <div style={{marginLeft:'auto', display:'flex', gap:8}}>
-                      {!cal.isDefault && (
-                        <>
-                          <button className="btn" onClick={(e) => { e.stopPropagation(); toggleHideCalendar(cal); }}>{isHidden ? 'Show' : 'Hide'}</button>
-                          <button className="btn" onClick={(e) => { e.stopPropagation(); handleDeleteCalendar(cal); }}>Delete</button>
-                        </>
-                      )}
-                      {cal.isDefault && (
-                        <button className="btn" onClick={(e) => { e.stopPropagation(); handleDeleteCalendar(cal); }} title="Clear calendar events">Clear</button>
-                      )}
+                      <div style={{position:'relative'}} onClick={(e) => e.stopPropagation()}>
+                        <button
+                          className="btn"
+                          onClick={(e) => { e.stopPropagation(); setMenuOpenId(menuOpenId === calId ? null : calId); }}
+                          aria-expanded={menuOpenId === calId}
+                          aria-haspopup="true"
+                          title="Actions"
+                        >
+                          ⋮
+                        </button>
+
+                        {menuOpenId === calId && (
+                          <div
+                            style={{
+                              position: 'absolute',
+                              right: 0,
+                              top: 'calc(100% + 6px)',
+                              background: 'var(--card)',
+                              padding: 8,
+                              borderRadius: 8,
+                              boxShadow: '0 6px 18px rgba(0,0,0,0.4)',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: 6,
+                              zIndex: 1600,
+                              minWidth: 140
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {!cal.isDefault && (
+                              <button
+                                className="btn"
+                                onClick={(e) => { e.stopPropagation(); toggleHideCalendar(cal); setMenuOpenId(null); }}
+                              >
+                                {isHidden ? 'Show' : 'Hide'}
+                              </button>
+                            )}
+
+                            {cal.isDefault ? (
+                              isOwner ? (
+                                <button
+                                  className="btn"
+                                  onClick={(e) => { e.stopPropagation(); handleDeleteCalendar(cal); setMenuOpenId(null); }}
+                                  title="Clear calendar events"
+                                >
+                                  Clear
+                                </button>
+                              ) : (
+                                <button
+                                  className="btn"
+                                  onClick={(e) => { e.stopPropagation(); removeCalendarForSelf(cal); setMenuOpenId(null); }}
+                                >
+                                  Remove from my calendars
+                                </button>
+                              )
+                            ) : (
+                              isOwner ? (
+                                <button
+                                  className="btn"
+                                  onClick={(e) => { e.stopPropagation(); handleDeleteCalendar(cal); setMenuOpenId(null); }}
+                                >
+                                  Delete
+                                </button>
+                              ) : (
+                                <button
+                                  className="btn"
+                                  onClick={(e) => { e.stopPropagation(); removeCalendarForSelf(cal); setMenuOpenId(null); }}
+                                >
+                                  Remove from my calendars
+                                </button>
+                              )
+                            )}
+
+                            {isOwner && (
+                              <button
+                                className="btn"
+                                onClick={(e) => { e.stopPropagation(); setShareCalendarId(calId); setShareModalOpen(true); setMenuOpenId(null); }}
+                              >
+                                Share
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </li>
                 );
