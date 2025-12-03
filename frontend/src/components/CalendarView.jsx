@@ -87,6 +87,28 @@ export default function CalendarView({ apiBase = '/api' }) {
     }
   }, [selectedCalendar]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const timerRef = useRef(null);
+  const [showHamburger, setShowHamburger] = useState(false);
+
+  useEffect(() => {
+    if (!sidebarOpen) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => setShowHamburger(true), 200);
+    } else {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+      setShowHamburger(false);
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [sidebarOpen]);
 
   function formatForDateTimeLocal(d) {
     if (!d) return '';
@@ -468,10 +490,32 @@ export default function CalendarView({ apiBase = '/api' }) {
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
             {sidebarOpen ? (
               <>
-                <strong>Your calendars</strong>
-                <div style={{display:'flex',gap:8}}>
-                  <button className="btn" onClick={() => setShowCreateModal(true)}>Add calendar</button>
-                  <button className="btn" onClick={() => setSidebarOpen(false)} title="Collapse sidebar">◀</button>
+                <div style={{display:'flex',flexDirection:'column',alignItems:'flex-start',gap:6}}>
+                  <button
+                    className="btn primary"
+                    onClick={() => {
+                      setFormData({
+                        title: "",
+                        description: "",
+                        type: "arrangement",
+                        startDate: "",
+                        endDate: "",
+                        color: "#C9ABC3",
+                        repeat: "none",
+                      });
+                      setSelectedDate(null);
+                      setIsModalOpen(true);
+                    }}
+                    title="Create event"
+                    style={{padding:'6px 10px', transform: 'translateY(-4px)'}}
+                  >
+                    + Create Event
+                  </button>
+                  <strong style={{marginTop:0, transform: 'translateY(-3px)'}}>My Calendars</strong>
+                </div>
+                <div style={{display:'flex',gap:8,alignItems:'center', marginTop:6}}>
+                  <button className="btn" onClick={() => setShowCreateModal(true)} title="Add calendar"style={{transform: 'translate(40px, 10px)', padding: '5px 10px'}}>+</button>
+                  <button className="btn" onClick={() => setSidebarOpen(false)} title="Collapse sidebar" style={{transform: 'translate(-8px, -20px)', padding: '1px 20px'}}>◀</button>
                 </div>
               </>
             ) : (
@@ -609,7 +653,19 @@ export default function CalendarView({ apiBase = '/api' }) {
         <button
           onClick={() => setSidebarOpen(true)}
           title="Open calendars"
-          style={{position:'absolute',left:8,top:`calc(var(--header-height) + 35px)`,zIndex:1400,padding:'10px 15px',borderRadius:6,background:'var(--card)'}}
+          style={{
+            position:'absolute',
+            left:8,
+            top:`calc(var(--header-height) + 35px)`,
+            zIndex:1400,
+            padding:'10px 15px',
+            borderRadius:6,
+            background:'var(--card)',
+            // Controlled visibility: appear after 0.3s
+            opacity: showHamburger ? 1 : 0,
+            transition: 'opacity 180ms ease',
+            pointerEvents: showHamburger ? 'auto' : 'none'
+          }}
         >
           ☰
         </button>
