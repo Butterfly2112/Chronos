@@ -35,7 +35,11 @@ export default function EventEditModal({ isOpen, event, onClose, onUpdated }) {
             onUpdated();
             onClose();
         } catch (err) {
-            console.error("Update failed", err);
+            if (err.response?.status === 403) {
+                alert("You are not the creator of this event. You cannot edit it.");
+            } else {
+                alert("Something went wrong.");
+            }
         }
     }
 

@@ -96,7 +96,8 @@ class EventController {
                 throw new AppError("Cannot update regional events", 403);
             }
 
-            const event = await eventService.updateEvent(id, updates);
+            const userId = req.session.user.id;
+            const event = await eventService.updateEvent(id, userId, updates);
 
             res.status(200).json({
                 success: true,
@@ -118,7 +119,8 @@ class EventController {
                 throw new AppError("Cannot delete regional holiday events", 403);
             }
             
-            await eventService.deleteEvent(id);
+            const userId = req.session.user.id;
+            await eventService.deleteEvent(id, userId);
 
             res.status(200).json({
                 success: true,
@@ -133,14 +135,14 @@ class EventController {
     async inviteUser(req, res, next) {
         try {
             const { id } = req.params;
-            const { userId } = req.body;
+            const { target_user_id } = req.body;
 
             // Регіональні календарі
             if (regionCalendarService.isRegionalEventId(id)) {
                 throw new AppError("Cannot invite users to regional holiday events", 403);
             }
 
-            const event = await eventService.inviteUser(id, userId);
+            const event = await eventService.inviteUser(id, target_user_id);
 
             res.status(200).json({
                 success: true,

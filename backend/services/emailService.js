@@ -1,3 +1,4 @@
+import "dotenv/config";
 import nodemailer from "nodemailer";
 
 class EmailService {
@@ -74,6 +75,30 @@ class EmailService {
 
     console.log("Calendar share message sent: %s", info.messageId);
   }
+
+  async sendEventInvite(email, event, ownerName) {
+    const eventUrl = `${this.#protocol}://${this.#host}${this.#portPart}/events/${event._id}`;
+
+    console.log("EMAIL:", email);
+    console.log("EVENT TITLE:", event.title);
+    console.log("OWNER:", ownerName);
+    const info = await this.transporter.sendMail({
+
+      from: `"Chronos" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: `${ownerName} invited you to an event`,
+      text: `${ownerName} invited you to the event "${event.title}". View event: ${eventUrl}`,
+      html: `
+            <h1>Event Invitation</h1>
+            <p>${ownerName} invited you to the event "<strong>${event.title}</strong>".</p>
+            <p>Open event:</p>
+            <a href="${eventUrl}">${eventUrl}</a>
+        `,
+    });
+
+    console.log("Event invitation sent: %s", info.messageId);
+  }
+
 }
 
 export default EmailService;

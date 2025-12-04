@@ -444,6 +444,7 @@ export default function CalendarView({ apiBase = '/api' }) {
       <EventViewModal
           isOpen={viewModalOpen}
           event={selectedEventData}
+          currentUserId={me?.id}
           onClose={() => setViewModalOpen(false)}
           onEdit={openEditModal}
           onInvite={openInviteModal}

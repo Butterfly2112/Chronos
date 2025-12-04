@@ -19,7 +19,10 @@ export default function EventInviteModal({ isOpen, eventId, onClose }) {
 
     async function invite(userId) {
         try {
-            await api.post(`/event/${eventId}/invite`, { userId });
+            await api.post(`/event/${eventId}/invite`, {
+                target_user_id: userId
+            });
+
             alert("User invited!");
             onClose();
         } catch (err) {
@@ -59,7 +62,7 @@ export default function EventInviteModal({ isOpen, eventId, onClose }) {
                             <button
                                 type="button"
                                 className="invite-btn"
-                                onClick={() => invite(u.id || u._id)}
+                                onClick={() => invite(u.id)}
                             >
                                 Invite
                             </button>
