@@ -1,7 +1,9 @@
 import EventService from "../services/eventService.js";
+import RegionCalendarService from "../services/regionCalendarService.js";
 import AppError from "../utils/AppError.js";
 
 const eventService = new EventService();
+const regionCalendarService = new RegionCalendarService();
 
 class EventController {
     // Створити подію
@@ -12,6 +14,11 @@ class EventController {
 
             if (!data.title || !data.type) {
                 throw new AppError("Event title and type are required", 400);
+            }
+
+            // Регіональні календарі
+            if (data.calendarId && regionCalendarService.isRegionalCalendarId(data.calendarId)) {
+                throw new AppError("Cannot create events in regional calendars", 403);
             }
 
             const event = await eventService.createEvent(userId, data);
@@ -30,6 +37,17 @@ class EventController {
     async getCalendarEvents(req, res, next) {
         try {
             const { calendarId } = req.params;
+
+            // Регіональні календарі
+            if (regionCalendarService.isRegionalCalendarId(calendarId)) {
+                const events = await regionCalendarService.getCalendarEvents(calendarId);
+                return res.status(200).json({
+                    success: true,
+                    count: events.length,
+                    events,
+                });
+            }
+
             const events = await eventService.getCalendarEvents(calendarId);
 
             res.status(200).json({
@@ -46,6 +64,16 @@ class EventController {
     async getEventById(req, res, next) {
         try {
             const { id } = req.params;
+
+            // Регіональні календарі
+            if (regionCalendarService.isRegionalEventId(id)) {
+                const event = await regionCalendarService.getEventById(id);
+                return res.status(200).json({
+                    success: true,
+                    event,
+                });
+            }
+            
             const event = await eventService.getEventById(id);
 
             res.status(200).json({
@@ -62,6 +90,11 @@ class EventController {
         try {
             const { id } = req.params;
             const updates = req.body;
+
+            // Регіональні календарі
+            if (regionCalendarService.isRegionalEventId(id)) {
+                throw new AppError("Cannot update regional events", 403);
+            }
 
             const event = await eventService.updateEvent(id, updates);
 
@@ -80,6 +113,11 @@ class EventController {
         try {
             const { id } = req.params;
 
+            // Регіональні календарі
+            if (regionCalendarService.isRegionalEventId(id)) {
+                throw new AppError("Cannot delete regional holiday events", 403);
+            }
+            
             await eventService.deleteEvent(id);
 
             res.status(200).json({
@@ -96,6 +134,11 @@ class EventController {
         try {
             const { id } = req.params;
             const { userId } = req.body;
+
+            // Регіональні календарі
+            if (regionCalendarService.isRegionalEventId(id)) {
+                throw new AppError("Cannot invite users to regional holiday events", 403);
+            }
 
             const event = await eventService.inviteUser(id, userId);
 
@@ -132,6 +175,11 @@ class EventController {
             const { id } = req.params;
             const { status } = req.body;
 
+            // Регіональні календарі
+            if (regionCalendarService.isRegionalEventId(id)) {
+                throw new AppError("Cannot update status of regional holiday events", 403);
+            }
+
             const event = await eventService.updateStatus(id, status);
 
             res.status(200).json({
@@ -149,6 +197,11 @@ class EventController {
         try {
             const { id } = req.params;
             const { repeat } = req.body;
+
+            // Регіональні календарі
+            if (regionCalendarService.isRegionalEventId(id)) {
+                throw new AppError("Cannot change repeat of regional holiday events", 403);
+            }
 
             const event = await eventService.updateRepeat(id, repeat);
 

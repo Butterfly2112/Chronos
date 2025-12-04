@@ -7,7 +7,7 @@ import path from "path";
 
 class UserService {
   async updateProfile(userId, data) {
-    const { username, email } = data;
+    const { username, email, region } = data;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -28,6 +28,10 @@ class UserService {
 
     if (username && username !== user.username) {
       user.username = username;
+    }
+
+    if (region && region !== user.region) {
+      user.region = region;
     }
 
     await user.save();

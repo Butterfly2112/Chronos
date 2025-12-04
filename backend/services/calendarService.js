@@ -133,6 +133,10 @@ class CalendarService {
       throw new AppError("Only owner can invite to the calendar", 403);
     }
 
+    if (calendar.isDefault) {
+      throw new AppError("Cannot share default calendar", 400);
+    }
+
     const shareToUser = await User.findById(shareToUserId);
     if (!shareToUser) {
       throw new AppError("User, who you want to invite, not found", 404);

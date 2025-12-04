@@ -40,4 +40,16 @@ calendarRouter.delete("/:id", (req, res, next) => {
   calendarController.deleteCalendar(req, res, next);
 });
 
+calendarRouter.get('/regional/countries', (req, res, next) => 
+  calendarController.getAvailableCountries(req, res, next)
+);
+
+calendarRouter.post('/regional/set-country', (req, res, next) => 
+  calendarController.setRegionalCountry(req, res, next)
+);
+
+calendarRouter.get('/regional/current-country', (req, res, next) => 
+  calendarController.getCurrentCountry(req, res, next)
+);
+
 export default calendarRouter;

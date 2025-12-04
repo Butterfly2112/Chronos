@@ -130,6 +130,7 @@ class AuthService {
       username: user.username,
       email: user.email,
       profilePicture: user.avatar,
+      region: user.region,
     };
   }
 }

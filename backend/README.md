@@ -380,7 +380,8 @@ Authorization: Session cookie required
 Content-Type: application/json
 {
   "username": "test Test"
-  "email": "newtest@example.com"
+  "email": "newtest@example.com",
+  "region": "us"
 }
 ```
 
@@ -880,6 +881,191 @@ Content-Type: application/json
 2. Check if user has access to this calendar
 3. Delete user access to the calendar
 4. Return success message and updated calendar info
+
+---
+
+### Region Calendars module
+
+#### Get available region calendars
+
+```http
+GET api/calendar/regional/countries
+Authorization: Session cookie required
+```
+
+**Response: 200**
+
+```json
+{
+  "success": true,
+  "count": 21,
+  "countries": [
+    {
+      "code": "au",
+      "name": "Australia",
+      "flag": "🇦🇺"
+    },
+    {
+      "code": "br",
+      "name": "Brazil",
+      "flag": "🇧🇷"
+    },
+    {
+      "code": "ca",
+      "name": "Canada",
+      "flag": "🇨🇦"
+    },
+    {
+      "code": "cn",
+      "name": "China",
+      "flag": "🇨🇳"
+    },
+    {
+      "code": "dk",
+      "name": "Denmark",
+      "flag": "🇩🇰"
+    },
+    {
+      "code": "fi",
+      "name": "Finland",
+      "flag": "🇫🇮"
+    },
+    {
+      "code": "fr",
+      "name": "France",
+      "flag": "🇫🇷"
+    },
+    {
+      "code": "de",
+      "name": "Germany",
+      "flag": "🇩🇪"
+    },
+    {
+      "code": "in",
+      "name": "India",
+      "flag": "🇮🇳"
+    },
+    {
+      "code": "it",
+      "name": "Italy",
+      "flag": "🇮🇹"
+    },
+    {
+      "code": "jp",
+      "name": "Japan",
+      "flag": "🇯🇵"
+    },
+    {
+      "code": "mx",
+      "name": "Mexico",
+      "flag": "🇲🇽"
+    },
+    {
+      "code": "nl",
+      "name": "Netherlands",
+      "flag": "🇳🇱"
+    },
+    {
+      "code": "no",
+      "name": "Norway",
+      "flag": "🇳🇴"
+    },
+    {
+      "code": "pl",
+      "name": "Poland",
+      "flag": "🇵🇱"
+    },
+    {
+      "code": "kr",
+      "name": "South Korea",
+      "flag": "🇰🇷"
+    },
+    {
+      "code": "es",
+      "name": "Spain",
+      "flag": "🇪🇸"
+    },
+    {
+      "code": "se",
+      "name": "Sweden",
+      "flag": "🇸🇪"
+    },
+    {
+      "code": "ua",
+      "name": "Ukraine",
+      "flag": "🇺🇦"
+    },
+    {
+      "code": "gb",
+      "name": "United Kingdom",
+      "flag": "🇬🇧"
+    },
+    {
+      "code": "us",
+      "name": "United States",
+      "flag": "🇺🇸"
+    }
+  ]
+}
+```
+
+**Algorithm:**
+
+1. Check if user logged in
+2. Return success message with list of available countries to get region calendar
+
+---
+
+#### Change user region
+
+```http
+POST api/calendar/regional/set-country
+Authorization: Session cookie required
+Content-Type: application/json
+{
+  "countryCode": "ua"
+}
+```
+
+**Response: 200**
+
+```json
+{
+  "success": true,
+  "message": "Regional calendar country updated",
+  "countryCode": "ua"
+}
+```
+
+**Algorithm:**
+
+1. Check if user logged in
+2. Validate country code
+3. Save changed region to the database
+4. Return success message
+
+---
+
+#### Get current user region
+
+```http
+GET api/calendar/regional/current-country
+Authorization: Session cookie required
+```
+
+**Response: 200**
+
+```json
+{
+  "success": true,
+  "country": "us"
+}
+```
+
+**Algorithm:**
+
+1. Check if user is logged in
+2. Return success message and user region info
 
 ---
 

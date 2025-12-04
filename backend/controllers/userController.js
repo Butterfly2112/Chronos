@@ -9,11 +9,11 @@ class UserController {
   async updateProfile(req, res, next) {
     try {
       const userId = req.session.user.id;
-      const { username, email } = req.body;
+      const { username, email, region } = req.body;
 
-      if (!username && !email) {
+      if (!username && !email && !region) {
         throw new AppError(
-          "At least one field (username or email) is required",
+          "At least one field (username, email or region) is required",
           400
         );
       }
@@ -21,6 +21,7 @@ class UserController {
       const result = await userService.updateProfile(userId, {
         username,
         email,
+        region,
       });
 
       if (result.emailConfirmationToken) {
@@ -37,6 +38,7 @@ class UserController {
         ...req.session.user,
         username: result.user.username,
         email: result.user.email,
+        region: result.user.region,
       };
 
       res.status(200).json({
