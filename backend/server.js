@@ -9,6 +9,8 @@ import { connectDB } from "./config/db.js";
 import mainRouter from "./routes/mainRouter.js";
 import sessionConfig from "./config/session.js";
 import errorHandler from "./middleware/errorHandler.js";
+import "./utils/reminders.js";
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

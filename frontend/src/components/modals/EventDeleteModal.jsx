@@ -10,7 +10,11 @@ export default function EventDeleteModal({ isOpen, eventId, onClose, onDeleted }
             onDeleted();
             onClose();
         } catch (err) {
-            console.error("Delete failed", err);
+            if (err.response?.status === 403) {
+                alert("You are not the creator of this event. You cannot delete it.");
+            } else {
+                alert("Something went wrong.");
+            }
         }
     }
 

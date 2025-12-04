@@ -2,6 +2,7 @@ import { Event } from "../models/Event.js";
 import Calendar from "../models/Calendar.js";
 import User from "../models/User.js";
 import { Notification } from "../models/Notification.js";
+import EmailService from "./emailService.js";
 
 import AppError from "../utils/AppError.js";
 
@@ -33,7 +34,6 @@ class EventService {
             throw new AppError("Access denied to this calendar", 403);
         }
 
-        // 1 — створюємо основну подію
         const event = await Event.create({
             title,
             description,
@@ -49,12 +49,10 @@ class EventService {
         calendarDoc.events.push(event._id);
         await calendarDoc.save();
 
-        // 2 — створюємо повтори (DAILY / WEEKLY / MONTHLY)
         if (repeat && repeat !== "none") {
             const start = new Date(startDate);
             const end = new Date(endDate);
 
-            // Сумарно згенеруємо 30 повторів
             for (let i = 1; i <= 30; i++) {
                 let newStart = new Date(start);
                 let newEnd = new Date(end);
@@ -93,7 +91,6 @@ class EventService {
             }
         }
 
-        // 3 — створюємо нагадування
         if (type === "reminder") {
             await Notification.create({
                 user: userId,
@@ -130,9 +127,13 @@ class EventService {
     }
 
     // Оновити подію
-    async updateEvent(eventId, updates) {
+    async updateEvent(eventId, userId, updates) {
         const event = await Event.findById(eventId);
         if (!event) throw new AppError("Event not found", 404);
+
+        if (event.creator.toString() !== userId.toString()) {
+            throw new AppError("Only the creator can update this event", 403);
+        }
 
         Object.assign(event, updates);
 
@@ -141,9 +142,13 @@ class EventService {
     }
 
     // Видалити подію
-    async deleteEvent(eventId) {
+    async deleteEvent(eventId, userId) {
         const event = await Event.findById(eventId);
         if (!event) throw new AppError("Event not found", 404);
+
+        if (event.creator.toString() !== userId.toString()) {
+            throw new AppError("Only the creator can delete this event", 403);
+        }
 
         await Calendar.updateOne(
             { _id: event.calendar },
@@ -157,31 +162,26 @@ class EventService {
         return true;
     }
 
-    // Запросити користувача
     async inviteUser(eventId, userId) {
-        const event = await Event.findById(eventId);
+        const event = await Event.findById(eventId).populate("creator");
         const user = await User.findById(userId);
 
         if (!event || !user) {
             throw new AppError("Event or user not found", 404);
         }
 
-        const alreadyInvited = event.invited.some(
-            (id) => id.toString() === userId.toString()
-        );
-
-        if (!alreadyInvited) {
+        if (!event.invited.includes(userId)) {
             event.invited.push(userId);
             await event.save();
         }
 
-        await Notification.create({
-            user: userId,
-            event: eventId,
-            message: `Вас запросили на подію "${event.title}"`,
-            sendAt: new Date(),
-            method: "in-app",
-        });
+        const emailService = new EmailService();
+
+        await emailService.sendEventInvite(
+            user.email,
+            event,
+            event.creator.username || event.creator.login || "Chronos User"
+        );
 
         return event;
     }

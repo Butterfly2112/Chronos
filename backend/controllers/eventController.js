@@ -63,7 +63,8 @@ class EventController {
             const { id } = req.params;
             const updates = req.body;
 
-            const event = await eventService.updateEvent(id, updates);
+            const userId = req.session.user.id;
+            const event = await eventService.updateEvent(id, userId, updates);
 
             res.status(200).json({
                 success: true,
@@ -80,7 +81,8 @@ class EventController {
         try {
             const { id } = req.params;
 
-            await eventService.deleteEvent(id);
+            const userId = req.session.user.id;
+            await eventService.deleteEvent(id, userId);
 
             res.status(200).json({
                 success: true,
@@ -95,9 +97,9 @@ class EventController {
     async inviteUser(req, res, next) {
         try {
             const { id } = req.params;
-            const { userId } = req.body;
+            const { target_user_id } = req.body;
 
-            const event = await eventService.inviteUser(id, userId);
+            const event = await eventService.inviteUser(id, target_user_id);
 
             res.status(200).json({
                 success: true,

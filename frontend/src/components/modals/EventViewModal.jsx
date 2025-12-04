@@ -6,9 +6,12 @@ export default function EventViewModal({
                                            onClose,
                                            onEdit,
                                            onInvite,
-                                           onDelete
+                                           onDelete,
+                                           currentUserId
                                        }) {
     if (!isOpen || !event) return null;
+
+    const isCreator = event.creator && event.creator._id === currentUserId;
 
     return (
         <div className="modal-overlay">
@@ -22,12 +25,18 @@ export default function EventViewModal({
                 <p><strong>End:</strong> {new Date(event.endDate).toLocaleString()}</p>
 
                 <div className="modal-actions">
-                    <button type="button" onClick={onEdit}>Edit</button>
-                    <button type="button" onClick={onInvite}>Invite</button>
-                    <button type="button" className="danger" onClick={onDelete}>Delete</button>
+                    {isCreator && (
+                        <>
+                            <button type="button" onClick={onEdit}>Edit</button>
+                            <button type="button" onClick={onInvite}>Invite</button>
+                            <button type="button" className="danger" onClick={onDelete}>Delete</button>
+                        </>
+                    )}
+
                     <button type="button" onClick={onClose}>Close</button>
                 </div>
             </div>
         </div>
     );
 }
+
