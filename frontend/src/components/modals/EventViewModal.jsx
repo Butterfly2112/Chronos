@@ -21,8 +21,8 @@ export default function EventViewModal({
                 <p><strong>Title:</strong> {event.title}</p>
                 <p><strong>Description:</strong> {event.description || "—"}</p>
                 <p><strong>Type:</strong> {event.type}</p>
-                <p><strong>Start:</strong> {new Date(event.startDate).toLocaleString()}</p>
-                <p><strong>End:</strong> {new Date(event.endDate).toLocaleString()}</p>
+                <p><strong>Start:</strong> {event.type === 'holiday' ? new Date(event.startDate).toLocaleDateString() + ', 00:00:00' : new Date(event.startDate).toLocaleString()}</p>
+                <p><strong>End:</strong> {event.type === 'holiday' ? new Date(event.startDate).toLocaleDateString() + ', 23:59:59' : new Date(event.endDate).toLocaleString()}</p>
 
                 <div className="modal-actions">
                     {isCreator && (

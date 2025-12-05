@@ -238,3 +238,7 @@ button.nav-link:hover,
   background: #af9683 !important;
   color: #0a0a0a !important;
 }
+
+.holiday-day-cell .fc-daygrid-day-number {
+  color: #cd0000 !important;
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useRef, useContext, useMemo } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -55,6 +55,42 @@ export default function CalendarView({ apiBase = '/api' }) {
   const [newCalHolidays, setNewCalHolidays] = useState(false);
   const [creatingCalendar, setCreatingCalendar] = useState(false);
   const [hiddenCalendars, setHiddenCalendars] = useState([]);
+
+  // Створюємо набір дат (Set string YYYY-MM-DD), які є святами
+  const holidaySet = useMemo(() => {
+    const dates = new Set();
+    regionalCalendars.forEach(cal => {
+      if (cal.events && Array.isArray(cal.events)) {
+        cal.events.forEach(ev => {
+          if (ev.startDate) {
+            const dateStr = new Date(ev.startDate).toISOString().split('T')[0];
+            dates.add(dateStr);
+          }
+        });
+      }
+    });
+    return dates;
+  }, [regionalCalendars]);
+
+  const getDayCellClassNames = (arg) => {
+    if (!selectedCalendar) return [];
+    const currentCal = calendars.find(c => (c._id || c.id) === selectedCalendar);
+    if (!currentCal) return [];
+    const shouldShowHolidays = currentCal.isDefault || 
+      localStorage.getItem('calendar_holidays_' + selectedCalendar) === 'true';
+    if (!shouldShowHolidays) {
+      return [];
+    }
+    const offset = arg.date.getTimezoneOffset();
+    const cleanDate = new Date(arg.date.getTime() - (offset * 60 * 1000));
+    const dateStr = cleanDate.toISOString().split('T')[0];
+
+    if (holidaySet.has(dateStr)) {
+      return ['holiday-day-cell'];
+    }
+    return [];
+  };
+
   // Завантажує календарі поточного користувача з бекенду.
   async function loadCalendars() {
     try {
@@ -141,6 +177,7 @@ export default function CalendarView({ apiBase = '/api' }) {
         nowIndicator={true}
         ref={calendarRef}
         height="auto"
+        dayCellClassNames={getDayCellClassNames}
 
         events={fetchEvents}
         dateClick={(info) => {
@@ -398,8 +435,8 @@ export default function CalendarView({ apiBase = '/api' }) {
           title: ev.title,
           start: ev.startDate,
           end: ev.endDate,
-          backgroundColor: regionalCalendars[0].color || '#FF6B6B',
-          borderColor: regionalCalendars[0].color || '#FF6B6B'
+          backgroundColor: '#cd0000',
+          borderColor: '#ff6f6fff'
         }));
         events.push(...holidayEvents);
       }
