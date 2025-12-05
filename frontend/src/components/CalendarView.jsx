@@ -17,6 +17,7 @@ export default function CalendarView({ apiBase = '/api' }) {
   const calendarRef = useRef(null);
   const [view, setView] = useState('dayGridMonth');
   const [calendars, setCalendars] = useState([]);
+  const [regionalCalendars, setRegionalCalendars] = useState([]);
   const [selectedCalendar, setSelectedCalendar] = useState(null);
 
   // Вікно створення події
@@ -51,6 +52,7 @@ export default function CalendarView({ apiBase = '/api' }) {
   const [newCalName, setNewCalName] = useState('');
   const [newCalDesc, setNewCalDesc] = useState('');
   const [newCalDefault, setNewCalDefault] = useState(false);
+  const [newCalHolidays, setNewCalHolidays] = useState(false);
   const [creatingCalendar, setCreatingCalendar] = useState(false);
   const [hiddenCalendars, setHiddenCalendars] = useState([]);
   // Завантажує календарі поточного користувача з бекенду.
@@ -60,11 +62,14 @@ export default function CalendarView({ apiBase = '/api' }) {
       const res = await api.get('/calendar/my');
       console.log('loadCalendars response', res);
       const data = res.data?.calendars || [];
-      setCalendars(data);
-      if (data.length) {
+      const regularCalendars = data.filter(c => !c.isRegional);
+      const regionalCalendarsData = data.filter(c => c.isRegional);
+      setCalendars(regularCalendars);
+      setRegionalCalendars(regionalCalendarsData);
+      if (regularCalendars.length) {
         // Віддати перевагу календарю за замовчуванням, якщо він є
-        const defaultCal = data.find(c => c.isDefault);
-        const preferId = defaultCal ? (defaultCal._id || defaultCal.id) : (data[0]._id || data[0].id);
+        const defaultCal = regularCalendars.find(c => c.isDefault);
+        const preferId = defaultCal ? (defaultCal._id || defaultCal.id) : (regularCalendars[0]._id || regularCalendars[0].id);
         if (!selectedCalendar || defaultCal) setSelectedCalendar(preferId);
       }
       if (!data.length) setCalendarLoadError('No calendars returned from server');
@@ -216,6 +221,7 @@ export default function CalendarView({ apiBase = '/api' }) {
         setMe(null);
         setIsAuthenticated(false);
         setCalendars([]);
+        setRegionalCalendars([]);
         setSelectedCalendar(null);
       }
     };
@@ -253,13 +259,17 @@ export default function CalendarView({ apiBase = '/api' }) {
       // Спробувати вибрати щойно створений календар
       const created = res.data?.calendar || res.data;
       const createdId = created?._id || created?.id;
-      if (createdId) setSelectedCalendar(createdId);
+      if (createdId) {
+        setSelectedCalendar(createdId);
+        localStorage.setItem('calendar_holidays_' + createdId, newCalHolidays.toString());
+      }
       else if (data && data.length) setSelectedCalendar(data[0]._id || data[0].id);
 
       setShowCreateModal(false);
       setNewCalName('');
       setNewCalDesc('');
       setNewCalDefault(false);
+      setNewCalHolidays(false);
       alert('Calendar created');
     } catch (err) {
       console.error('Create calendar failed', err);
@@ -379,6 +389,20 @@ export default function CalendarView({ apiBase = '/api' }) {
         backgroundColor: ev.color,
         borderColor: ev.color
       }));
+
+      // If selected calendar is default or has holidays enabled, add regional holidays
+      const selectedCal = calendars.find(c => (c._id || c.id) === calendarId);
+      if (selectedCal && (selectedCal.isDefault || localStorage.getItem('calendar_holidays_' + calendarId) === 'true') && regionalCalendars.length > 0) {
+        const holidayEvents = (regionalCalendars[0].events || []).map(ev => ({
+          id: ev._id,
+          title: ev.title,
+          start: ev.startDate,
+          end: ev.endDate,
+          backgroundColor: regionalCalendars[0].color || '#FF6B6B',
+          borderColor: regionalCalendars[0].color || '#FF6B6B'
+        }));
+        events.push(...holidayEvents);
+      }
 
       // Also load events where current user was invited and merge them
       try {
@@ -705,6 +729,17 @@ export default function CalendarView({ apiBase = '/api' }) {
                       style={{width:'100%'}}
                       rows={3}
                     />
+                  </div>
+                  <div style={{marginBottom:8}}>
+                    <label style={{display:'flex', alignItems:'center', fontSize:13}}>
+                      <input
+                        type="checkbox"
+                        checked={newCalHolidays}
+                        onChange={e => setNewCalHolidays(e.target.checked)}
+                        style={{marginRight:8}}
+                      />
+                      Include holidays
+                    </label>
                   </div>
                   <div style={{display:'flex',justifyContent:'flex-end',gap:8}}>
                     <button type="button" className="btn" onClick={() => setShowCreateModal(false)}>Cancel</button>
