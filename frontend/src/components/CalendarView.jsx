@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useContext, useMemo, useCallback } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -72,7 +72,7 @@ export default function CalendarView({ apiBase = '/api' }) {
     return dates;
   }, [regionalCalendars]);
 
-  const getDayCellClassNames = (arg) => {
+  const getDayCellClassNames = useCallback((arg) => {
     if (!selectedCalendar) return [];
     const currentCal = calendars.find(c => (c._id || c.id) === selectedCalendar);
     if (!currentCal) return [];
@@ -89,7 +89,7 @@ export default function CalendarView({ apiBase = '/api' }) {
       return ['holiday-day-cell'];
     }
     return [];
-  };
+  }, [selectedCalendar, calendars, holidaySet]); 
 
   // Завантажує календарі поточного користувача з бекенду.
   async function loadCalendars() {
@@ -103,7 +103,6 @@ export default function CalendarView({ apiBase = '/api' }) {
       setCalendars(regularCalendars);
       setRegionalCalendars(regionalCalendarsData);
       if (regularCalendars.length) {
-        // Віддати перевагу календарю за замовчуванням, якщо він є
         const defaultCal = regularCalendars.find(c => c.isDefault);
         const preferId = defaultCal ? (defaultCal._id || defaultCal.id) : (regularCalendars[0]._id || regularCalendars[0].id);
         if (!selectedCalendar || defaultCal) setSelectedCalendar(preferId);
@@ -117,7 +116,6 @@ export default function CalendarView({ apiBase = '/api' }) {
     }
   }
 
-  // Коли змінюється вибраний календар, перезапитати події у FullCalendar
   useEffect(() => {
     if (!selectedCalendar) return;
     const calendarApi = calendarRef.current?.getApi();
@@ -142,7 +140,6 @@ export default function CalendarView({ apiBase = '/api' }) {
       }
       setShowHamburger(false);
     }
-
     return () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
@@ -163,52 +160,6 @@ export default function CalendarView({ apiBase = '/api' }) {
     return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
   }
 
-  function renderCalendar() {
-    return (
-      <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
-        initialView={view}
-        firstDay={1}
-        headerToolbar={{
-          left: 'prev,next today',
-          center: 'title',
-          right: 'timeGridDay,timeGridWeek,dayGridMonth,listWeek'
-        }}
-        nowIndicator={true}
-        ref={calendarRef}
-        height="auto"
-        dayCellClassNames={getDayCellClassNames}
-
-        events={fetchEvents}
-        dateClick={(info) => {
-          // Заповнює поля початку/кінця у формі створення події при кліку по даті
-          try {
-            const clicked = info.date;
-            // Якщо клік по події в режимі 'allDay' — ставимо 09:00 місцевого часу
-            const start = new Date(clicked);
-            if (info.allDay) {
-              start.setHours(9, 0, 0, 0);
-            }
-            const end = new Date(start.getTime() + 60 * 60 * 1000); // +1 година
-
-            setFormData(prev => ({ ...prev, startDate: formatForDateTimeLocal(start), endDate: formatForDateTimeLocal(end) }));
-            setSelectedDate(info.date);
-            setIsModalOpen(true);
-          } catch (e) {
-            setSelectedDate(info.date);
-            setIsModalOpen(true);
-          }
-        }}
-
-        eventClick={(info) => {
-          info.jsEvent.preventDefault();
-          openEventDetails(info.event.id);
-        }}
-      />
-    );
-  }
-
-  // Переключає приховування/показ календаря (тільки для не-дефолтних)
   function toggleHideCalendar(cal) {
     const id = cal._id || cal.id;
     if (cal.isDefault) {
@@ -219,8 +170,6 @@ export default function CalendarView({ apiBase = '/api' }) {
     setHiddenCalendars(prev => {
       const exists = prev.includes(id);
       const next = exists ? prev.filter(x => x !== id) : [...prev, id];
-
-      // Якщо щойно приховали вибраний календар — вибрати інший видимий
       if (!exists && selectedCalendar === id) {
         const visible = calendars.find(c => {
           const cid = c._id || c.id;
@@ -229,8 +178,6 @@ export default function CalendarView({ apiBase = '/api' }) {
         if (visible) setSelectedCalendar(visible._id || visible.id);
         else setSelectedCalendar(null);
       }
-
-      // запустити повторне завантаження подій
       try { calendarRef.current?.getApi().refetchEvents(); } catch (e) {}
       return next;
     });
@@ -246,7 +193,6 @@ export default function CalendarView({ apiBase = '/api' }) {
     }
   }
 
-  //при вході завантажує календарі, при виході очищує стан
   useEffect(() => {
     console.log('CalendarView authUser changed', authUser);
     const handleAuthChange = async () => {
@@ -272,14 +218,12 @@ export default function CalendarView({ apiBase = '/api' }) {
     return () => window.removeEventListener('click', handler);
   }, [menuOpenId]);
 
-  // Створити новий календар (modal)
   async function createCalendar(e) {
     e.preventDefault();
     if (!newCalName || !newCalName.trim()) {
       alert("Назва календаря обов'язкова");
       return;
     }
-
     setCreatingCalendar(true);
     try {
       const body = {
@@ -287,13 +231,8 @@ export default function CalendarView({ apiBase = '/api' }) {
         description: newCalDesc,
         isDefault: !!newCalDefault,
       };
-
       const res = await api.post('/calendar/create', body);
-
-      // Оновити список календарів
       const data = await loadCalendars();
-
-      // Спробувати вибрати щойно створений календар
       const created = res.data?.calendar || res.data;
       const createdId = created?._id || created?.id;
       if (createdId) {
@@ -301,7 +240,6 @@ export default function CalendarView({ apiBase = '/api' }) {
         localStorage.setItem('calendar_holidays_' + createdId, newCalHolidays.toString());
       }
       else if (data && data.length) setSelectedCalendar(data[0]._id || data[0].id);
-
       setShowCreateModal(false);
       setNewCalName('');
       setNewCalDesc('');
@@ -317,20 +255,17 @@ export default function CalendarView({ apiBase = '/api' }) {
     }
   }
 
-  // Обробник видалення/ресету календаря
   async function handleDeleteCalendar(cal) {
     const id = cal._id || cal.id;
     const isDefault = !!cal.isDefault;
     const confirmMsg = isDefault
       ? 'Are you sure you want to clear all events in the default calendar?'
       : 'Are you sure you want to delete this calendar?';
-
     if (!confirm(confirmMsg)) return;
 
     try {
       const res = await api.delete(`/calendar/${id}`);
       const body = res.data || {};
-
       const lowerMsg = (body.message || '').toLowerCase();
 
       if (lowerMsg.includes('events of default calendar deleted') || lowerMsg.includes('default calendar remains')) {
@@ -351,15 +286,11 @@ export default function CalendarView({ apiBase = '/api' }) {
     }
   }
 
-  // Удалить календарь только для текущего пользователя (самоудаление из shared)
   async function removeCalendarForSelf(cal) {
     const id = cal._id || cal.id;
     if (!confirm('Do you want to remove this calendar from your account?')) return;
-
     try {
       const res = await api.post(`/calendar/${id}/unshare`, { user_to_unshare: me.id });
-
-      // Если операция успешна — удалить календарь из локального списка
       setCalendars(prev => prev.filter(c => (c._id || c.id) !== id));
       setSelectedCalendar(prev => (prev === id ? null : prev));
       alert('Calendar removed from your account');
@@ -372,7 +303,6 @@ export default function CalendarView({ apiBase = '/api' }) {
 
   async function submitEvent(e) {
     e.preventDefault();
-
     try {
       let calendarId = selectedCalendar;
       if (!calendarId) {
@@ -384,12 +314,7 @@ export default function CalendarView({ apiBase = '/api' }) {
         alert("There is no calendar available to create an event");
         return;
       }
-
-      const body = {
-        ...formData,
-        calendar: calendarId
-      };
-
+      const body = { ...formData, calendar: calendarId };
       await api.post(`/event/create`, body);
 
       setIsModalOpen(false);
@@ -403,7 +328,7 @@ export default function CalendarView({ apiBase = '/api' }) {
     }
   }
 
-  async function fetchEvents(fetchInfo, successCallback, failureCallback) {
+  const fetchEvents = useCallback(async (fetchInfo, successCallback, failureCallback) => {
     try {
       let calendarId = selectedCalendar;
       if (!calendarId) {
@@ -427,7 +352,6 @@ export default function CalendarView({ apiBase = '/api' }) {
         borderColor: ev.color
       }));
 
-      // If selected calendar is default or has holidays enabled, add regional holidays
       const selectedCal = calendars.find(c => (c._id || c.id) === calendarId);
       if (selectedCal && (selectedCal.isDefault || localStorage.getItem('calendar_holidays_' + calendarId) === 'true') && regionalCalendars.length > 0) {
         const holidayEvents = (regionalCalendars[0].events || []).map(ev => ({
@@ -466,14 +390,13 @@ export default function CalendarView({ apiBase = '/api' }) {
       } catch (err) {
         console.error('Failed to load invited events:', err);
       }
-
       successCallback(events);
 
     } catch (err) {
       console.error("Failed to load events:", err);
       failureCallback(err);
     }
-  }
+  }, [selectedCalendar, calendars, hiddenCalendars, regionalCalendars, me]);
 
   function openEditModal() {
     setViewModalOpen(false);
@@ -488,6 +411,47 @@ export default function CalendarView({ apiBase = '/api' }) {
   function openDeleteModal() {
     setViewModalOpen(false);
     setDeleteModalOpen(true);
+  }
+
+  function renderCalendar() {
+    return (
+      <FullCalendar
+        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+        initialView={view}
+        firstDay={1}
+        headerToolbar={{
+          left: 'prev,next today',
+          center: 'title',
+          right: 'timeGridDay,timeGridWeek,dayGridMonth,listWeek'
+        }}
+        nowIndicator={true}
+        ref={calendarRef}
+        height="auto"
+        dayCellClassNames={getDayCellClassNames}
+        events={fetchEvents}
+        dateClick={(info) => {
+          try {
+            const clicked = info.date;
+            const start = new Date(clicked);
+            if (info.allDay) {
+              start.setHours(9, 0, 0, 0);
+            }
+            const end = new Date(start.getTime() + 60 * 60 * 1000); 
+
+            setFormData(prev => ({ ...prev, startDate: formatForDateTimeLocal(start), endDate: formatForDateTimeLocal(end) }));
+            setSelectedDate(info.date);
+            setIsModalOpen(true);
+          } catch (e) {
+            setSelectedDate(info.date);
+            setIsModalOpen(true);
+          }
+        }}
+        eventClick={(info) => {
+          info.jsEvent.preventDefault();
+          openEventDetails(info.event.id);
+        }}
+      />
+    );
   }
 
   return (
