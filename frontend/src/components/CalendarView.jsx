@@ -511,6 +511,51 @@ export default function CalendarView({ apiBase = '/api' }) {
           onDeleted={() => calendarRef.current?.getApi().refetchEvents()}
           onClose={() => setDeleteModalOpen(false)}
       />
+      {showCreateModal && (
+        <div style={{position:'fixed', inset:0, display:'flex', alignItems:'center', justifyContent:'center', zIndex:1200, pointerEvents:'none', background: 'rgba(0,0,0,0.6)'}}>
+          <div style={{width:420,background:'var(--bg)',padding:18,borderRadius:8,boxShadow:'0 8px 30px rgba(0,0,0,0.6)', pointerEvents:'auto'}}>
+            <h3 style={{marginTop:0,marginBottom:8}}>Create calendar</h3>
+            <form onSubmit={createCalendar}>
+              <div style={{marginBottom:8}}>
+                <label style={{display:'block',fontSize:13,marginBottom:6}}>Name</label>
+                <input
+                  value={newCalName}
+                  onChange={e => setNewCalName(e.target.value)}
+                  className="input"
+                  style={{width:'100%'}}
+                  placeholder="My calendar"
+                />
+              </div>
+              <div style={{marginBottom:8}}>
+                <label style={{display:'block',fontSize:13,marginBottom:6}}>Description (optional)</label>
+                <textarea
+                  value={newCalDesc}
+                  onChange={e => setNewCalDesc(e.target.value)}
+                  className="input"
+                  style={{width:'100%'}}
+                  rows={3}
+                />
+              </div>
+              <div style={{marginBottom:8}}>
+                <label style={{display:'flex', alignItems:'center', fontSize:13}}>
+                  <input
+                    type="checkbox"
+                    className="nice-checkbox"
+                    checked={newCalHolidays}
+                    onChange={e => setNewCalHolidays(e.target.checked)}
+                    style={{marginRight:8}}
+                  />
+                  Include holidays
+                </label>
+              </div>
+              <div style={{display:'flex',justifyContent:'flex-end',gap:8}}>
+                <button type="button" className="btn" onClick={() => setShowCreateModal(false)}>Cancel</button>
+                <button type="submit" className="btn primary" disabled={creatingCalendar}>{creatingCalendar ? 'Creating...' : 'Create'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       <div style={{position: 'absolute', left: 0, top: `calc(var(--header-height) + 33px)`, height: 'calc(100vh - var(--header-height) - 24px)', width: 260, transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)', transition: 'transform 220ms ease', overflow:'auto', zIndex:1300, pointerEvents: sidebarOpen ? 'auto' : 'none'}}>
         <div className="card" style={{padding:12, marginBottom:12, width: 260}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
@@ -705,51 +750,7 @@ export default function CalendarView({ apiBase = '/api' }) {
             <div style={{marginTop:6}}>To create events and see your calendars, please <a href="/login">log in to your account</a>.</div>
           </div>
         )}
-        <div className="calendar-wrapper card" style={{flex:1, position:'relative'}}>
-          {showCreateModal && (
-            <div style={{position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', zIndex:1200, pointerEvents:'none'}}>
-              <div style={{width:420,background:'var(--card-bg, #0b0b0b)',padding:18,borderRadius:8,boxShadow:'0 8px 30px rgba(0,0,0,0.6)', pointerEvents:'auto'}}>
-                <h3 style={{marginTop:0,marginBottom:8}}>Create calendar</h3>
-                <form onSubmit={createCalendar}>
-                  <div style={{marginBottom:8}}>
-                    <label style={{display:'block',fontSize:13,marginBottom:6}}>Name</label>
-                    <input
-                      value={newCalName}
-                      onChange={e => setNewCalName(e.target.value)}
-                      className="input"
-                      style={{width:'100%'}}
-                      placeholder="My calendar"
-                    />
-                  </div>
-                  <div style={{marginBottom:8}}>
-                    <label style={{display:'block',fontSize:13,marginBottom:6}}>Description (optional)</label>
-                    <textarea
-                      value={newCalDesc}
-                      onChange={e => setNewCalDesc(e.target.value)}
-                      className="input"
-                      style={{width:'100%'}}
-                      rows={3}
-                    />
-                  </div>
-                  <div style={{marginBottom:8}}>
-                    <label style={{display:'flex', alignItems:'center', fontSize:13}}>
-                      <input
-                        type="checkbox"
-                        checked={newCalHolidays}
-                        onChange={e => setNewCalHolidays(e.target.checked)}
-                        style={{marginRight:8}}
-                      />
-                      Include holidays
-                    </label>
-                  </div>
-                  <div style={{display:'flex',justifyContent:'flex-end',gap:8}}>
-                    <button type="button" className="btn" onClick={() => setShowCreateModal(false)}>Cancel</button>
-                    <button type="submit" className="btn primary" disabled={creatingCalendar}>{creatingCalendar ? 'Creating...' : 'Create'}</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
+        <div className="calendar-wrapper card" style={{flex:1}}>
           {renderCalendar()}
         </div>
       </div>

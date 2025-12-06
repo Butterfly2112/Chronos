@@ -242,3 +242,31 @@ button.nav-link:hover,
 .holiday-day-cell .fc-daygrid-day-number {
   color: #cd0000 !important;
 }
+
+.nice-checkbox {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.nice-checkbox:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.nice-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--bg);
+  font-size: 14px;
+  font-weight: bold;
+}

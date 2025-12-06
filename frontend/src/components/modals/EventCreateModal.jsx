@@ -12,12 +12,12 @@ export default function CreateEventModal({
 
     // 6 дозволених кольорів
     const colorOptions = [
-        "#d2965c",
-        "#8e6b4f",
-        "#c7585b",
-        "#a07c45",
+        "#d25d61ff",
+        "#779661ff",
+        "#6e577dff",
+        "#ddd163ff",
         "#7b5738",
-        "#593f2a"
+        "#c67d42ff"
     ];
 
     return (
