@@ -69,6 +69,9 @@ EMAIL_USER=your@gmail.com    # Gmail address for nodemailer (REQUIRED)
 EMAIL_PASS=app_password      # Gmail app password (REQUIRED)
 HOST_FOR_EMAIL=localhost     # Host for email confirmation links
 PORT_FOR_EMAIL=3000          # Port for email confirmation links
+
+# Third party APIs
+GOOGLE_API_KEY=your_api_key  # Google calendar API Key (OPTIONAL)
 ```
 
 #### Important Notes:
@@ -77,6 +80,8 @@ PORT_FOR_EMAIL=3000          # Port for email confirmation links
 - **EMAIL_USER & EMAIL_PASS**: Use Gmail App Password (not regular password)
   - Guide: [Create Gmail App Password](https://support.google.com/accounts/answer/185833)
 - **SESSION_SECRET**: Use a strong random string (e.g., generate with `openssl rand -base64 32`)
+- **GOOGLE_API_KEY**: This step is optional, if you won't specify your Google API Key then calendars for regions will be disabled automatically
+  - Guide: [How to create Google API Key](https://docs.simplecalendar.io/google-api-key/)
 
 #### Email Confirmation URL Format:
 
@@ -108,7 +113,8 @@ Content-type: application/json
     "username": "Test User",
     "password": "testPassword123",
     "confirm_password": "testPassword123",
-    "email": "test@example.com"
+    "email": "test@example.com",
+    "region": "uk"
 }
 ```
 
@@ -123,7 +129,8 @@ Content-type: application/json
     "login": "test_user",
     "username": "Test User",
     "email": "test@example.com",
-    "profilePicture": "uploads/default_avatar.svg"
+    "profilePicture": "uploads/default_avatar.svg",
+    "region": "uk"
   }
 }
 ```
@@ -219,7 +226,8 @@ OR
     "login": "test_user",
     "username": "Test User",
     "email": "test@example.com",
-    "profilePicture": "uploads/default_avatar.svg"
+    "profilePicture": "uploads/default_avatar.svg",
+    "region": "uk"
   }
 }
 ```
@@ -275,7 +283,8 @@ Authorization: Session cookie required
     "login": "test_user",
     "username": "Test User",
     "email": "test@example.com",
-    "profilePicture": "uploads/default_avatar.svg"
+    "profilePicture": "uploads/default_avatar.svg",
+    "region": "uk"
   }
 }
 ```
@@ -1150,5 +1159,5 @@ This is an educational team project for Innovation Campus NTU "KhPI", FullStack 
 ### Team Members:
 
 - Anastasiia Shyrkova
-- Diana Malashta - Backend
+- Diana Malashta
 - Kateryna Lytovchenko
