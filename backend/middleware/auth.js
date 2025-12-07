@@ -1,5 +1,55 @@
+const availableCountryCodes = [
+  "au",
+  "at",
+  "br",
+  "bg",
+  "ca",
+  "cn",
+  "hr",
+  "cz",
+  "dk",
+  "fi",
+  "fr",
+  "de",
+  "gb",
+  "gr",
+  "hk",
+  "hu",
+  "in",
+  "id",
+  "ie",
+  "il",
+  "it",
+  "jp",
+  "lv",
+  "lt",
+  "my",
+  "mx",
+  "nl",
+  "nz",
+  "no",
+  "ph",
+  "pl",
+  "pt",
+  "ro",
+  "sa",
+  "sg",
+  "sk",
+  "si",
+  "kr",
+  "es",
+  "se",
+  "tw",
+  "tl",
+  "tr",
+  "ua",
+  "us",
+  "vn",
+];
+
 export function registerFields(req, res, next) {
-  const { login, username, password, confirm_password, email } = req.body;
+  const { login, username, password, confirm_password, email, region } =
+    req.body;
   if (!login || !username || !password || !confirm_password || !email) {
     return res.status(400).json({
       error: "All fields are required.",
@@ -47,6 +97,12 @@ export function registerFields(req, res, next) {
       error: "Password must contain at least one letter and one number.",
     });
   }
+  if (region && !availableCountryCodes.includes(region)) {
+    return res.status(400).json({
+      error: "Invalid region code.",
+    });
+  }
+
   next();
 }
 
