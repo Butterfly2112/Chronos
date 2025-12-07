@@ -91,7 +91,10 @@ export default function Header(){
                   {uploading && <div className="avatar-loading">...</div>}
                   <input ref={inputRef} type="file" accept="image/*" className="avatar-input" onChange={handleFileChange} />
                 </div>
-              <span className="username">{user.username || user.login || user.email}</span>
+              <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
+                <span className="username">{user.username}</span>
+                <span className="login" style={{fontSize: '0.8em', color: 'var(--muted)'}}>{user.login}</span>
+              </div>
               {avatarError && <div className="form-error" style={{marginLeft:8}}>{avatarError}</div>}
               <button onClick={logout} className="btn btn-ghost">Logout</button>
             </div>
