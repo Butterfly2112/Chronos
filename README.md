@@ -160,14 +160,45 @@ npm run dev
 6. **Open your browser:**
    Navigate to `http://localhost:3001`
 
-#### Docker Setup (Coming Soon)
+#### Docker Setup (Production)
 
-Docker configuration is currently in development. When ready, you'll be able to run the entire application with:
+1. **Download and Install Docker Desktop:**
+   - Go to [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
+   - Download for Windows, install as admin, choose WSL2 backend.
+
+2. **Update WSL (if needed):**
 ```bash
-docker-compose up
+wsl --update
 ```
 
-This will start both frontend and backend services automatically.
+3. **Verify Docker:**
+```bash
+docker --version
+docker compose version
+```
+
+4. **Clone the repository:**
+```bash
+git clone https://github.com/Butterfly2112/Chronos.git
+cd Chronos
+```
+
+5. **Build and run with Docker Compose:**
+```bash
+docker compose up --build
+# Builds images and starts containers
+# Frontend: http://localhost:3001
+# Backend: http://localhost:3000 (internal)
+# MongoDB: localhost:27017 (internal)
+```
+
+6. **Open your browser:**
+   Navigate to `http://localhost:3001`
+
+7. **Stop the application:**
+```bash
+docker compose down
+```
 ## Project Structure
 ```
 chronos/
