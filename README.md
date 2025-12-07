@@ -107,7 +107,6 @@ GOOGLE_API_KEY=your_google_api_key_here
 
 - Get your MongoDB connection string from [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
 - Use Gmail App Password (not your regular password) - [Guide](https://support.google.com/accounts/answer/185833)
-- Generate SESSION_SECRET with: `openssl rand -base64 32`
 - Get Google API Key from [Google Cloud Console](https://console.cloud.google.com/)
 
 #### Frontend Setup
