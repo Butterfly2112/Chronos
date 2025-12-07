@@ -5,7 +5,7 @@ import AppError from "../utils/AppError.js";
 
 class CalendarService {
   async createCalendar(userId, calendarData) {
-    const { name, description, color } = calendarData;
+    const { name, description, color, includeHolidays } = calendarData;
 
     const calendar = await Calendar.create({
       name,
@@ -13,6 +13,7 @@ class CalendarService {
       color: color || "#4E1E4A",
       owner: userId,
       isDefault: false,
+      includeHolidays: includeHolidays || false,
     });
 
     await User.findOneAndUpdate(
@@ -69,7 +70,7 @@ class CalendarService {
   }
 
   async updateCalendar(calendarId, userId, updateData) {
-    const { name, description, color } = updateData;
+    const { name, description, color, includeHolidays } = updateData;
 
     const calendar = await Calendar.findById(calendarId);
     if (!calendar) {
@@ -83,6 +84,7 @@ class CalendarService {
     if (name !== undefined) calendar.name = name;
     if (description !== undefined) calendar.description = description;
     if (color !== undefined) calendar.color = color;
+    if (includeHolidays !== undefined) calendar.includeHolidays = includeHolidays;
 
     await calendar.save();
     return calendar;

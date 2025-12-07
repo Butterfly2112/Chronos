@@ -76,8 +76,7 @@ export default function CalendarView({ apiBase = '/api' }) {
     if (!selectedCalendar) return [];
     const currentCal = calendars.find(c => (c._id || c.id) === selectedCalendar);
     if (!currentCal) return [];
-    const shouldShowHolidays = currentCal.isDefault || 
-      localStorage.getItem('calendar_holidays_' + selectedCalendar) === 'true';
+    const shouldShowHolidays = currentCal.isDefault || currentCal.includeHolidays;
     if (!shouldShowHolidays) {
       return [];
     }
@@ -230,6 +229,7 @@ export default function CalendarView({ apiBase = '/api' }) {
         name: newCalName,
         description: newCalDesc,
         isDefault: !!newCalDefault,
+        includeHolidays: newCalHolidays,
       };
       const res = await api.post('/calendar/create', body);
       const data = await loadCalendars();
@@ -237,7 +237,6 @@ export default function CalendarView({ apiBase = '/api' }) {
       const createdId = created?._id || created?.id;
       if (createdId) {
         setSelectedCalendar(createdId);
-        localStorage.setItem('calendar_holidays_' + createdId, newCalHolidays.toString());
       }
       else if (data && data.length) setSelectedCalendar(data[0]._id || data[0].id);
       setShowCreateModal(false);
@@ -353,7 +352,7 @@ export default function CalendarView({ apiBase = '/api' }) {
       }));
 
       const selectedCal = calendars.find(c => (c._id || c.id) === calendarId);
-      if (selectedCal && (selectedCal.isDefault || localStorage.getItem('calendar_holidays_' + calendarId) === 'true') && regionalCalendars.length > 0) {
+      if (selectedCal && (selectedCal.isDefault || selectedCal.includeHolidays) && regionalCalendars.length > 0) {
         const holidayEvents = (regionalCalendars[0].events || []).map(ev => ({
           id: ev._id,
           title: ev.title,
@@ -700,7 +699,7 @@ export default function CalendarView({ apiBase = '/api' }) {
                               )
                             )}
 
-                            {isOwner && (
+                            {isOwner && !cal.isDefault && (
                               <button
                                 className="btn"
                                 onClick={(e) => { e.stopPropagation(); setShareCalendarId(calId); setShareModalOpen(true); setMenuOpenId(null); }}

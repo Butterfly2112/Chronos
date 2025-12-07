@@ -47,6 +47,10 @@ const calendarSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  includeHolidays: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
