@@ -54,7 +54,10 @@ export default function CalendarView({ apiBase = '/api' }) {
   const [newCalDefault, setNewCalDefault] = useState(false);
   const [newCalHolidays, setNewCalHolidays] = useState(false);
   const [creatingCalendar, setCreatingCalendar] = useState(false);
-  const [hiddenCalendars, setHiddenCalendars] = useState([]);
+  const [hiddenCalendars, setHiddenCalendars] = useState(() => {
+    const stored = localStorage.getItem('hiddenCalendars');
+    return stored ? JSON.parse(stored) : [];
+  });
 
   // Створюємо набір дат (Set string YYYY-MM-DD), які є святами
   const holidaySet = useMemo(() => {
@@ -101,10 +104,15 @@ export default function CalendarView({ apiBase = '/api' }) {
       const regionalCalendarsData = data.filter(c => c.isRegional);
       setCalendars(regularCalendars);
       setRegionalCalendars(regionalCalendarsData);
+      updateHiddenCalendars();
       if (regularCalendars.length) {
         const defaultCal = regularCalendars.find(c => c.isDefault);
-        const preferId = defaultCal ? (defaultCal._id || defaultCal.id) : (regularCalendars[0]._id || regularCalendars[0].id);
-        if (!selectedCalendar || defaultCal) setSelectedCalendar(preferId);
+        const savedSelected = localStorage.getItem('selectedCalendar');
+        let preferId = defaultCal ? (defaultCal._id || defaultCal.id) : (regularCalendars[0]._id || regularCalendars[0].id);
+        if (savedSelected && regularCalendars.find(c => (c._id || c.id) === savedSelected)) {
+          preferId = savedSelected;
+        }
+        setSelectedCalendar(preferId);
       }
       if (!data.length) setCalendarLoadError('No calendars returned from server');
       return data;
@@ -114,6 +122,33 @@ export default function CalendarView({ apiBase = '/api' }) {
       return [];
     }
   }
+
+  function updateHiddenCalendars() {
+    if (!me) return;
+    const localHidden = JSON.parse(localStorage.getItem('hiddenCalendars') || '[]');
+    const sharedHidden = calendars.filter(cal => {
+      const ownerId = (cal.owner && (cal.owner._id || cal.owner.id)) || cal.owner;
+      const isOwner = ownerId && String(ownerId) === String(me.id);
+      if (isOwner) return false;
+      const sharedEntry = cal.sharedWith?.find(s => String(s.user) === String(me.id));
+      return sharedEntry?.isHidden;
+    }).map(cal => cal._id || cal.id);
+    setHiddenCalendars([...localHidden, ...sharedHidden]);
+  }
+
+  useEffect(() => {
+    if (selectedCalendar) {
+      localStorage.setItem('selectedCalendar', selectedCalendar);
+    }
+  }, [selectedCalendar]);
+
+  useEffect(() => {
+    if (selectedCalendar && hiddenCalendars.includes(selectedCalendar)) {
+      const visible = calendars.find(c => !hiddenCalendars.includes(c._id || c.id));
+      if (visible) setSelectedCalendar(visible._id || visible.id);
+      else setSelectedCalendar(null);
+    }
+  }, [calendars, hiddenCalendars, selectedCalendar]);
 
   useEffect(() => {
     if (!selectedCalendar) return;
@@ -159,27 +194,43 @@ export default function CalendarView({ apiBase = '/api' }) {
     return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
   }
 
-  function toggleHideCalendar(cal) {
+  async function toggleHideCalendar(cal) {
     const id = cal._id || cal.id;
     if (cal.isDefault) {
       alert('Main calendar cannot be hidden');
       return;
     }
 
-    setHiddenCalendars(prev => {
-      const exists = prev.includes(id);
-      const next = exists ? prev.filter(x => x !== id) : [...prev, id];
-      if (!exists && selectedCalendar === id) {
-        const visible = calendars.find(c => {
-          const cid = c._id || c.id;
-          return cid !== id && !next.includes(cid);
-        });
-        if (visible) setSelectedCalendar(visible._id || visible.id);
-        else setSelectedCalendar(null);
+    const ownerId = (cal.owner && (cal.owner._id || cal.owner.id)) || cal.owner;
+    const isOwner = me && ownerId && String(ownerId) === String(me.id);
+
+    if (isOwner) {
+      // Local hide for owned calendars
+      setHiddenCalendars(prev => {
+        const exists = prev.includes(id);
+        const next = exists ? prev.filter(x => x !== id) : [...prev, id];
+        localStorage.setItem('hiddenCalendars', JSON.stringify(next));
+        return next;
+      });
+    } else {
+      // API call for shared calendars
+      try {
+        await api.post(`/calendar/${id}/toggle-hide`);
+        updateHiddenCalendars();
+      } catch (err) {
+        console.error('Failed to toggle hide', err);
+        alert('Failed to toggle hide calendar');
+        return;
       }
-      try { calendarRef.current?.getApi().refetchEvents(); } catch (e) {}
-      return next;
-    });
+    }
+
+    // Adjust selectedCalendar if needed
+    if (selectedCalendar === id) {
+      const visible = calendars.find(c => (c._id || c.id) !== id && !hiddenCalendars.includes(c._id || c.id));
+      if (visible) setSelectedCalendar(visible._id || visible.id);
+      else setSelectedCalendar(null);
+    }
+    try { calendarRef.current?.getApi().refetchEvents(); } catch (e) {}
   }
 
   async function openEventDetails(eventId) {
@@ -199,6 +250,7 @@ export default function CalendarView({ apiBase = '/api' }) {
         setMe(authUser);
         setIsAuthenticated(true);
         await loadCalendars();
+        updateHiddenCalendars();
       } else {
         setMe(null);
         setIsAuthenticated(false);
@@ -655,7 +707,7 @@ export default function CalendarView({ apiBase = '/api' }) {
                             }}
                             onClick={(e) => e.stopPropagation()}
                           >
-                            {!cal.isDefault && (
+                            {!cal.isDefault && (isOwner || !isHidden) && (
                               <button
                                 className="btn"
                                 onClick={(e) => { e.stopPropagation(); toggleHideCalendar(cal); setMenuOpenId(null); }}
@@ -699,7 +751,7 @@ export default function CalendarView({ apiBase = '/api' }) {
                               )
                             )}
 
-                            {isOwner && !cal.isDefault && (
+                            {isOwner && !cal.isDefault && !hiddenCalendars.includes(calId) && (
                               <button
                                 className="btn"
                                 onClick={(e) => { e.stopPropagation(); setShareCalendarId(calId); setShareModalOpen(true); setMenuOpenId(null); }}

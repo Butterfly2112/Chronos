@@ -340,6 +340,23 @@ class CalendarController {
   #getUserCountry(req) {
     return req.session.user.region;
   }
+
+  async toggleHideSharedCalendar(req, res, next) {
+    try {
+      const { id } = req.params;
+      const userId = req.session.user.id;
+
+      const calendar = await calendarService.toggleHideSharedCalendar(id, userId);
+
+      res.status(200).json({
+        success: true,
+        message: "Calendar hide status toggled",
+        calendar,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default CalendarController;

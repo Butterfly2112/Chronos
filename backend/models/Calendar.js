@@ -31,6 +31,10 @@ const calendarSchema = new mongoose.Schema({
         type: String,
         default: "#3788d8",
       },
+      isHidden: {
+        type: Boolean,
+        default: false,
+      },
     },
   ],
   events: [

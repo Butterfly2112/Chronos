@@ -285,6 +285,22 @@ class CalendarService {
     ];
     return colors[Math.floor(Math.random() * colors.length)];
   }
+
+  async toggleHideSharedCalendar(calendarId, userId) {
+    const calendar = await Calendar.findById(calendarId);
+    if (!calendar) {
+      throw new AppError("Calendar not found", 404);
+    }
+
+    const sharedEntry = calendar.sharedWith.find(s => s.user.toString() === userId.toString());
+    if (!sharedEntry) {
+      throw new AppError("User is not shared with this calendar", 403);
+    }
+
+    sharedEntry.isHidden = !sharedEntry.isHidden;
+    await calendar.save();
+    return calendar;
+  }
 }
 
 export default CalendarService;

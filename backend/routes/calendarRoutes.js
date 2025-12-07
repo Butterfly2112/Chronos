@@ -36,6 +36,10 @@ calendarRouter.put("/:id", (req, res, next) => {
   calendarController.updateCalendar(req, res, next);
 });
 
+calendarRouter.post("/:id/toggle-hide", (req, res, next) => {
+  calendarController.toggleHideSharedCalendar(req, res, next);
+});
+
 calendarRouter.delete("/:id", (req, res, next) => {
   calendarController.deleteCalendar(req, res, next);
 });
