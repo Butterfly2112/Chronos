@@ -225,6 +225,15 @@ class EventService {
         return event;
     }
 
+    async searchEvents(userId, query) {
+        return Event.find({
+            title: { $regex: query, $options: "i" },
+            creator: userId
+        })
+            .limit(10)
+            .select("title startDate calendar");
+    }
+
     // Перевірка доступу
     #checkAccess(calendar, userId) {
         if (calendar.owner.toString() === userId.toString()) return true;

@@ -216,6 +216,21 @@ class EventController {
             next(error);
         }
     }
+
+    async searchEvents(req, res, next) {
+        try {
+            const q = req.query.q;
+            if (!q) return res.json([]);
+
+            const userId = req.session.user?.id; // або req.user?.id залежно від твоєї auth
+            if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+            const events = await eventService.searchEvents(userId, q);
+            res.json(events);
+        } catch (err) {
+            next(err);
+        }
+    }
 }
 
 export default EventController;

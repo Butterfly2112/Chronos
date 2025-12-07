@@ -8,6 +8,8 @@ import { isAuthenticated } from "../middleware/auth.js";
 
 eventRouter.use(isAuthenticated);
 
+eventRouter.get("/search", eventController.searchEvents);
+
 eventRouter.get("/calendar/:calendarId", (req, res, next) => {
     eventController.getCalendarEvents(req, res, next);
 });
