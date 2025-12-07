@@ -4,7 +4,7 @@ import AppError from "../utils/AppError.js";
 
 class AuthService {
   async register(userData) {
-    const { login, username, email, password } = userData;
+    const { login, username, email, password, region } = userData;
 
     const userExists = await User.findOne({
       $or: [{ login }, { email }],
@@ -24,6 +24,7 @@ class AuthService {
       email,
       password,
       emailConfirmationToken,
+      region: region || "Ukraine",
     });
 
     return {

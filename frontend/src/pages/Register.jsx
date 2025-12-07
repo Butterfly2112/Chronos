@@ -7,6 +7,55 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import mapServerError from '../utils/errorMapper'
 
+const availableCountryCodes = [
+  { code: "au", name: "Australia" },
+  { code: "at", name: "Austria" },
+  { code: "br", name: "Brazil" },
+  { code: "bg", name: "Bulgaria" },
+  { code: "ca", name: "Canada" },
+  { code: "cn", name: "China" },
+  { code: "hr", name: "Croatia" },
+  { code: "cz", name: "Czech Republic" },
+  { code: "dk", name: "Denmark" },
+  { code: "fi", name: "Finland" },
+  { code: "fr", name: "France" },
+  { code: "de", name: "Germany" },
+  { code: "gb", name: "United Kingdom" },
+  { code: "gr", name: "Greece" },
+  { code: "hk", name: "Hong Kong" },
+  { code: "hu", name: "Hungary" },
+  { code: "in", name: "India" },
+  { code: "id", name: "Indonesia" },
+  { code: "ie", name: "Ireland" },
+  { code: "il", name: "Israel" },
+  { code: "it", name: "Italy" },
+  { code: "jp", name: "Japan" },
+  { code: "lv", name: "Latvia" },
+  { code: "lt", name: "Lithuania" },
+  { code: "my", name: "Malaysia" },
+  { code: "mx", name: "Mexico" },
+  { code: "nl", name: "Netherlands" },
+  { code: "nz", name: "New Zealand" },
+  { code: "no", name: "Norway" },
+  { code: "ph", name: "Philippines" },
+  { code: "pl", name: "Poland" },
+  { code: "pt", name: "Portugal" },
+  { code: "ro", name: "Romania" },
+  { code: "sa", name: "Saudi Arabia" },
+  { code: "sg", name: "Singapore" },
+  { code: "sk", name: "Slovakia" },
+  { code: "si", name: "Slovenia" },
+  { code: "kr", name: "South Korea" },
+  { code: "es", name: "Spain" },
+  { code: "se", name: "Sweden" },
+  { code: "tw", name: "Taiwan" },
+  { code: "tl", name: "Timor-Leste" },
+  { code: "tr", name: "Turkey" },
+  { code: "ua", name: "Ukraine" },
+  { code: "us", name: "United States" },
+  { code: "vn", name: "Vietnam" },
+];
+
 const schema = yup.object({
   login: yup.string().required('Login is required'),
   username: yup.string().required('Display name is required'),
@@ -19,7 +68,8 @@ const schema = yup.object({
     }),
   confirm_password: yup.string()
     .oneOf([yup.ref('password')], 'Passwords must match')
-    .required('Please confirm your password')
+    .required('Please confirm your password'),
+  region: yup.string().oneOf(availableCountryCodes.map(c => c.code), 'Invalid region code').optional()
 }).required()
 
 export default function Register(){
@@ -41,7 +91,8 @@ export default function Register(){
         username: data.username,
         email: data.email,
         password: data.password,
-        confirm_password: data.confirm_password
+        confirm_password: data.confirm_password,
+        region: data.region
       }
 
       const res = await api.post('/auth/register', payload)
@@ -88,6 +139,16 @@ export default function Register(){
             <label>Email</label>
             <input {...register('email')} type="email" className="form-input" />
             {errors.email && <div className="form-error">{errors.email.message}</div>}
+          </div>
+          <div style={{marginBottom:12}}>
+            <label>Region</label>
+            <select {...register('region')} className="form-input">
+              <option value="">Select region</option>
+              {availableCountryCodes.map(country => (
+                <option key={country.code} value={country.code}>{country.name}</option>
+              ))}
+            </select>
+            {errors.region && <div className="form-error">{errors.region.message}</div>}
           </div>
           <div style={{display:'flex', gap:12, marginBottom:12}}>
             <div style={{flex:1}}>
